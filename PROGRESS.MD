@@ -4,14 +4,15 @@ Last updated: 2026-10-06 (Asia/Karachi).
 
 ## Current state
 
-- Stage: Phase P1 (Specification contracts) completed; advancing to Phase P2 (Statistical generation).
+- Stage: Phase P2 (Statistical generation) completed; advancing to Phase P3 (Local text generation and safeguards).
 - Completed:
   - P0: Repository initialization, hardware profiling, FastAPI & Vite scaffolding, git remote sync.
   - P1: Pydantic v2 specification envelope with unknown-key rejection (`extra="forbid"`), 9 discriminated generator variants, semantic validator with cycle detection (Kahn's algorithm), deterministic topological generator, default e-commerce support ticket template, and `/api/specs/validate` & `/api/templates` routes.
-- Application code: All 17 backend tests and frontend production build pass cleanly.
+  - P2: Deterministic statistical sampling engine (`backend/generation/samplers.py` and `engine.py`), largest-remainder fixed proportion allocation, uniform/truncated-normal draws, synthetic ID generator, conditional distributions, derived date ordering, and dataset quality validator (`backend/validation/validator.py`).
+- Application code: All 24 backend tests and frontend production build pass cleanly.
 - Environment: Windows, Python 3.10.11, Node v24.19.0, npm 11.17.0, Git 2.54.0.windows.1.
 - Hardware: 16 GB RAM, NVIDIA GeForce GTX 1660 SUPER (6 GB VRAM). Local Ollama service running with models (qwen2.5:7b, qwen2.5-coder:7b, llama3.2:1b, deepseek-r1:1.5b).
-- Active implementation milestone: P2.1 (Seeded categorical and boolean generators).
+- Active implementation milestone: P3.1 (Text adapter interface, fake adapter, and offline template generator).
 - Remote repository: `git@github.com:AdeelAsghar11/SynthLab.git` (branch `main` tracking `origin/main`, synchronized).
 - Committer identity: Strictly configured as `AdeelAsghar11 <adeelyt157@gmail.com>`.
 
@@ -19,9 +20,10 @@ These files belong to SynthLab. They must not be applied to the unrelated AutoRe
 
 ## Exact next action
 
-Implement P2.1 & P2.2 (Statistical generation engine):
-1. Create `backend/generation/samplers.py` with deterministic seeded NumPy generators for categorical (random draws and largest-remainder fixed proportion allocation), boolean, uniform, and truncated-normal distributions.
-2. Verify repeatability, seed stability, and bounds in `tests/test_samplers.py`.
+Implement P3.1 & P3.2 (Local text generation & adapter contract):
+1. Build `backend/generation/adapters.py` with `BaseModelAdapter`, `FakeModelAdapter` (deterministic for tests), `TemplateTextAdapter` (offline baseline), and `OllamaModelAdapter` (connecting to local Ollama runtime).
+2. Ensure text fields cannot overwrite structured row facts.
+3. Test adapters in `tests/test_adapters.py`.
 
 ## Milestone status
 
@@ -30,8 +32,8 @@ Implement P2.1 & P2.2 (Statistical generation engine):
 | Context pack | Prepared | AGENTS.MD and six companion context files |
 | P0 Repository and scaffold | Completed | P0.1 git init & hardware; P0.2 /api/health & Vite UI; P0.3 ignore rules, safe config & check.ps1; pushed to origin/main |
 | P1 Specification contracts | Completed | P1.1 envelope; P1.2 semantic checks; P1.3 topological planner; P1.4 support-ticket template & validate API; 17 tests passed |
-| P2 Statistical generation | In progress | Advancing to P2.1 & P2.2 (sampling algorithms) |
-| P3 Local text and screening | Not started | No implementation evidence |
+| P2 Statistical generation | Completed | P2.1-P2.6 samplers, GenerationEngine, largest-remainder quota, dataset validator; 24 tests passed |
+| P3 Local text and screening | In progress | Advancing to P3.1 (text adapters) |
 | P4 Jobs, storage, export | Not started | No implementation evidence |
 | P5 Frontend | Not started | Scaffolded; feature integration pending |
 | P6 Evaluation | Not started | No implementation evidence |
@@ -60,6 +62,25 @@ Implement P2.1 & P2.2 (Statistical generation engine):
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P2: Deterministic statistical generation and dataset validation (P2.1 - P2.6)
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `backend/generation/samplers.py`: Created seeded NumPy sampling library supporting `sample_categorical`, `allocate_fixed_proportions` (largest-remainder / Hare-Niemeyer method with stable tie-breaks), `sample_boolean`, `sample_uniform`, `sample_truncated_normal` (via SciPy `truncnorm`), `generate_identifiers` (unique sequential synthetic IDs), and `sample_datetimes`.
+  - `backend/generation/engine.py`: Built `GenerationEngine` executing generation in topological order, handling parent-child dependencies, conditional categorical mappings, derived datetime logic (strictly enforcing resolved date > creation date for resolved status, null otherwise), and applying nullability masks.
+  - `backend/validation/validator.py`: Built comprehensive dataset validator and quality reporter (`validate_dataset`), calculating column summaries (counts, observed frequencies, min/max/mean/std), checking duplicate IDs, testing category sets, checking uniform/normal bound violations, and reporting rule violations.
+  - `backend/generation/__init__.py` & `backend/validation/__init__.py`: Exported generation and validation modules.
+  - `tests/test_generation.py`: Added 7 comprehensive unit tests testing exact fixed proportion quotas, categorical seed repeatability, truncated-normal bounds, identifier uniqueness, seed stability, and end-to-end default support ticket generation.
+- Why this change was necessary: Fulfills Phase P2 completion gate to guarantee that all structured facts and business rules are completely owned and validated by Python before any LLM model is introduced.
+- Verification command(s), outcome, and relevant evidence:
+  - Pytest: `.venv\Scripts\pytest -v tests` -> All 24 tests passed in 1.44s.
+  - Check script: `powershell -ExecutionPolicy Bypass -File scripts\check.ps1` -> 24 tests passed, frontend build passed in 5.76s.
+- Decisions/research added or superseded: Implements D002 (hybrid generation with Python ownership of facts) and D005 (fixed proportions vs random sampling).
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `feat(generation): statistical sampling engine, fixed quotas, and dataset validator (P2.1-P2.6)`.
+- Exact next action: P3.1 & P3.2 text adapter interface and fake/template adapters.
 
 ### P1: Specification contracts, semantic validation, and default template (P1.1 - P1.4)
 
