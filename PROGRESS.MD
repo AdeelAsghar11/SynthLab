@@ -4,15 +4,16 @@ Last updated: 2026-10-06 (Asia/Karachi).
 
 ## Current state
 
-- Stage: Phase P2 (Statistical generation) completed; advancing to Phase P3 (Local text generation and safeguards).
+- Stage: Phase P3 (Local text generation and safeguards) completed; advancing to Phase P4 (Jobs, persistence, and export).
 - Completed:
   - P0: Repository initialization, hardware profiling, FastAPI & Vite scaffolding, git remote sync.
   - P1: Pydantic v2 specification envelope with unknown-key rejection (`extra="forbid"`), 9 discriminated generator variants, semantic validator with cycle detection (Kahn's algorithm), deterministic topological generator, default e-commerce support ticket template, and `/api/specs/validate` & `/api/templates` routes.
   - P2: Deterministic statistical sampling engine (`backend/generation/samplers.py` and `engine.py`), largest-remainder fixed proportion allocation, uniform/truncated-normal draws, synthetic ID generator, conditional distributions, derived date ordering, and dataset quality validator (`backend/validation/validator.py`).
-- Application code: All 24 backend tests and frontend production build pass cleanly.
+  - P3: Model adapters (`FakeModelAdapter`, `TemplateTextAdapter`, `OllamaModelAdapter`), privacy & sensitive data screening policy (`TextScreeningPolicy` detecting CNIC, phone numbers, emails, credit cards, IPs), and `TextEnricher` enforcing bounded 2-retry limits without altering upstream structured row facts.
+- Application code: All 30 backend tests and frontend production build pass cleanly.
 - Environment: Windows, Python 3.10.11, Node v24.19.0, npm 11.17.0, Git 2.54.0.windows.1.
 - Hardware: 16 GB RAM, NVIDIA GeForce GTX 1660 SUPER (6 GB VRAM). Local Ollama service running with models (qwen2.5:7b, qwen2.5-coder:7b, llama3.2:1b, deepseek-r1:1.5b).
-- Active implementation milestone: P3.1 (Text adapter interface, fake adapter, and offline template generator).
+- Active implementation milestone: P4.1 & P4.2 (Job queue, SQLite state machine, and atomic exports).
 - Remote repository: `git@github.com:AdeelAsghar11/SynthLab.git` (branch `main` tracking `origin/main`, synchronized).
 - Committer identity: Strictly configured as `AdeelAsghar11 <adeelyt157@gmail.com>`.
 
@@ -20,10 +21,11 @@ These files belong to SynthLab. They must not be applied to the unrelated AutoRe
 
 ## Exact next action
 
-Implement P3.1 & P3.2 (Local text generation & adapter contract):
-1. Build `backend/generation/adapters.py` with `BaseModelAdapter`, `FakeModelAdapter` (deterministic for tests), `TemplateTextAdapter` (offline baseline), and `OllamaModelAdapter` (connecting to local Ollama runtime).
-2. Ensure text fields cannot overwrite structured row facts.
-3. Test adapters in `tests/test_adapters.py`.
+Implement P4 (Jobs, persistence, and export):
+1. Build SQLite job repository and state machine in `backend/jobs/` with states: `queued`, `running`, `completed`, `failed`, `cancelling`, `cancelled`.
+2. Implement background job runner with progress tracking and idempotent cancellation.
+3. Build `backend/export/writers.py` for CSV (spreadsheet formula injection safe), JSON, quality report, and provenance manifest generation.
+4. Expose job and export API routes: `POST /api/jobs`, `GET /api/jobs/{id}`, `POST /api/jobs/{id}/cancel`, `GET /api/jobs/{id}/preview`, `GET /api/jobs/{id}/report`, `GET /api/jobs/{id}/exports/{format}`.
 
 ## Milestone status
 
@@ -33,8 +35,8 @@ Implement P3.1 & P3.2 (Local text generation & adapter contract):
 | P0 Repository and scaffold | Completed | P0.1 git init & hardware; P0.2 /api/health & Vite UI; P0.3 ignore rules, safe config & check.ps1; pushed to origin/main |
 | P1 Specification contracts | Completed | P1.1 envelope; P1.2 semantic checks; P1.3 topological planner; P1.4 support-ticket template & validate API; 17 tests passed |
 | P2 Statistical generation | Completed | P2.1-P2.6 samplers, GenerationEngine, largest-remainder quota, dataset validator; 24 tests passed |
-| P3 Local text and screening | In progress | Advancing to P3.1 (text adapters) |
-| P4 Jobs, storage, export | Not started | No implementation evidence |
+| P3 Local text and screening | Completed | P3.1-P3.4 adapters (Fake, Template, Ollama), screening policy, enricher retry logic; 30 tests passed |
+| P4 Jobs, storage, export | In progress | Advancing to P4.1-P4.5 (SQLite jobs, queue, export writers) |
 | P5 Frontend | Not started | Scaffolded; feature integration pending |
 | P6 Evaluation | Not started | No implementation evidence |
 | P7 Release | Not started | No implementation evidence |
@@ -62,6 +64,25 @@ Implement P3.1 & P3.2 (Local text generation & adapter contract):
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P3: Local text generation, model adapters, and screening policy (P3.1 - P3.4)
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `backend/generation/adapters.py`: Implemented `BaseModelAdapter` abstraction, `FakeModelAdapter` (deterministic for automated test suites), `TemplateTextAdapter` (offline deterministic baseline for GPU-less environments), and `OllamaModelAdapter` (local LLM runtime via Ollama `/api/generate` with structured JSON format).
+  - `backend/policies/screening.py`: Built `TextScreeningPolicy` detecting sensitive personal format patterns (Pakistani CNIC, Pakistani mobile phones, international phones, emails, credit cards, IP addresses) and `validate_input_policy` rejecting real identity/SSN requests.
+  - `backend/generation/text_enricher.py`: Created `TextEnricher` with bounded 2-retry limit per row skeleton, explicit rejection logging, and strict preservation of all upstream structured columns.
+  - `backend/policies/__init__.py` & `backend/generation/__init__.py`: Exported adapters, screening tools, and enricher.
+  - `tests/test_text_and_screening.py`: Added 6 unit and integration tests covering benign and sensitive text screening, input policy, adapter execution, structured column invariance, and retry behavior on sensitive outputs.
+- Why this change was necessary: Fulfills Phase P3 completion gate, allowing local text enrichment with strict privacy safeguards and no modification of structured row facts.
+- Verification command(s), outcome, and relevant evidence:
+  - Pytest: `.venv\Scripts\pytest -v tests` -> All 30 tests passed in 1.31s.
+  - Full check script: `powershell -ExecutionPolicy Bypass -File scripts\check.ps1` -> 30 tests passed, frontend build passed in 5.58s.
+- Decisions/research added or superseded: Implements D006 (local inference behind adapter), D009 (layered screening), and D010 (bounded retries).
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `feat(text): local text adapters, privacy screening policy, and enricher (P3.1-P3.4)`.
+- Exact next action: P4.1 & P4.2 SQLite job state machine and export writers.
 
 ### P2: Deterministic statistical generation and dataset validation (P2.1 - P2.6)
 
