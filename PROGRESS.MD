@@ -4,16 +4,17 @@ Last updated: 2026-10-06 (Asia/Karachi).
 
 ## Current state
 
-- Stage: Phase P3 (Local text generation and safeguards) completed; advancing to Phase P4 (Jobs, persistence, and export).
+- Stage: Phase P4 (Jobs, persistence, and export) completed; advancing to Phase P5 (Frontend workspace).
 - Completed:
   - P0: Repository initialization, hardware profiling, FastAPI & Vite scaffolding, git remote sync.
   - P1: Pydantic v2 specification envelope with unknown-key rejection (`extra="forbid"`), 9 discriminated generator variants, semantic validator with cycle detection (Kahn's algorithm), deterministic topological generator, default e-commerce support ticket template, and `/api/specs/validate` & `/api/templates` routes.
   - P2: Deterministic statistical sampling engine (`backend/generation/samplers.py` and `engine.py`), largest-remainder fixed proportion allocation, uniform/truncated-normal draws, synthetic ID generator, conditional distributions, derived date ordering, and dataset quality validator (`backend/validation/validator.py`).
   - P3: Model adapters (`FakeModelAdapter`, `TemplateTextAdapter`, `OllamaModelAdapter`), privacy & sensitive data screening policy (`TextScreeningPolicy` detecting CNIC, phone numbers, emails, credit cards, IPs), and `TextEnricher` enforcing bounded 2-retry limits without altering upstream structured row facts.
-- Application code: All 30 backend tests and frontend production build pass cleanly.
+  - P4: SQLite job repository and state machine (`queued` -> `running` -> `completed` / `cancelled` / `failed`), background worker execution, idempotent cancellation, formula-safe CSV export, JSON export, provenance manifest generation, quality reporting, and complete job API endpoints (`/api/jobs`).
+- Application code: All 35 backend tests and frontend production build pass cleanly.
 - Environment: Windows, Python 3.10.11, Node v24.19.0, npm 11.17.0, Git 2.54.0.windows.1.
 - Hardware: 16 GB RAM, NVIDIA GeForce GTX 1660 SUPER (6 GB VRAM). Local Ollama service running with models (qwen2.5:7b, qwen2.5-coder:7b, llama3.2:1b, deepseek-r1:1.5b).
-- Active implementation milestone: P4.1 & P4.2 (Job queue, SQLite state machine, and atomic exports).
+- Active implementation milestone: P5.1 - P5.6 (Interactive frontend workspace).
 - Remote repository: `git@github.com:AdeelAsghar11/SynthLab.git` (branch `main` tracking `origin/main`, synchronized).
 - Committer identity: Strictly configured as `AdeelAsghar11 <adeelyt157@gmail.com>`.
 
@@ -21,11 +22,14 @@ These files belong to SynthLab. They must not be applied to the unrelated AutoRe
 
 ## Exact next action
 
-Implement P4 (Jobs, persistence, and export):
-1. Build SQLite job repository and state machine in `backend/jobs/` with states: `queued`, `running`, `completed`, `failed`, `cancelling`, `cancelled`.
-2. Implement background job runner with progress tracking and idempotent cancellation.
-3. Build `backend/export/writers.py` for CSV (spreadsheet formula injection safe), JSON, quality report, and provenance manifest generation.
-4. Expose job and export API routes: `POST /api/jobs`, `GET /api/jobs/{id}`, `POST /api/jobs/{id}/cancel`, `GET /api/jobs/{id}/preview`, `GET /api/jobs/{id}/report`, `GET /api/jobs/{id}/exports/{format}`.
+Implement Phase P5 (Frontend workspace):
+1. Build `frontend/src/` components:
+   - Template selector & specification configurator (`TemplatePicker`, `SpecEditor`).
+   - Generation controls (row count, seed, mode: random vs fixed proportions, local Ollama toggle).
+   - Preview & Job monitor (20-row preview table, progress bar, cancel button).
+   - Validation report cards & distribution chart views.
+   - Download controls for formula-safe CSV and JSON datasets, report, and manifest.
+2. Verify full frontend build with `npm run build` and test user journey.
 
 ## Milestone status
 
@@ -36,8 +40,8 @@ Implement P4 (Jobs, persistence, and export):
 | P1 Specification contracts | Completed | P1.1 envelope; P1.2 semantic checks; P1.3 topological planner; P1.4 support-ticket template & validate API; 17 tests passed |
 | P2 Statistical generation | Completed | P2.1-P2.6 samplers, GenerationEngine, largest-remainder quota, dataset validator; 24 tests passed |
 | P3 Local text and screening | Completed | P3.1-P3.4 adapters (Fake, Template, Ollama), screening policy, enricher retry logic; 30 tests passed |
-| P4 Jobs, storage, export | In progress | Advancing to P4.1-P4.5 (SQLite jobs, queue, export writers) |
-| P5 Frontend | Not started | Scaffolded; feature integration pending |
+| P4 Jobs, storage, export | Completed | P4.1-P4.5 SQLite jobs, background execution, cancellation, export writers, 6 API routes; 35 tests passed |
+| P5 Frontend | In progress | Advancing to P5.1-P5.6 (interactive UI workspace) |
 | P6 Evaluation | Not started | No implementation evidence |
 | P7 Release | Not started | No implementation evidence |
 
@@ -64,6 +68,27 @@ Implement P4 (Jobs, persistence, and export):
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P4: SQLite persistence, background jobs, cancellation, and export writers (P4.1 - P4.5)
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `backend/jobs/models.py`: Defined `JobStatus` state machine (`queued`, `running`, `completed`, `failed`, `cancelling`, `cancelled`), `JobRecord`, and API request/response models.
+  - `backend/jobs/repository.py`: Implemented SQLite-backed `JobRepository` with connection pooling, table schema creation, progress tracking, status transitions, and automatic reconciliation of interrupted running jobs on restart.
+  - `backend/export/writers.py`: Built `export_dataset_csv` with spreadsheet formula injection protection (neutralizing cells starting with `=`, `+`, `-`, `@`, `\t`, `\r`), `export_dataset_json`, `export_report`, and `export_manifest` creating complete provenance hashes.
+  - `backend/jobs/manager.py`: Created `JobManager` coordinating background job execution, cancellation checkpoints between pipeline stages, and atomic export finalization.
+  - `backend/api/jobs.py`: Implemented FastAPI routes: `POST /api/jobs`, `GET /api/jobs/{id}`, `POST /api/jobs/{id}/cancel`, `GET /api/jobs/{id}/preview`, `GET /api/jobs/{id}/report`, `GET /api/jobs/{id}/manifest`, and `GET /api/jobs/{id}/exports/{format}`.
+  - `backend/main.py`: Registered jobs API router.
+  - `tests/test_jobs_and_export.py`: Added 5 unit and integration tests covering spreadsheet formula sanitization, CRUD in SQLite repository, background execution with atomic artifacts, cancellation guarantees, and end-to-end API preview/export workflow.
+- Why this change was necessary: Fulfills Phase P4 completion gate to provide reliable asynchronous execution, persistence, cancellation, and atomic provenance-backed exports.
+- Verification command(s), outcome, and relevant evidence:
+  - Pytest: `.venv\Scripts\pytest -v tests` -> All 35 tests passed in 1.55s.
+  - Full check script: `powershell -ExecutionPolicy Bypass -File scripts\check.ps1` -> 35 tests passed, frontend build passed in 5.69s.
+- Decisions/research added or superseded: Implements D008 (single local worker & SQLite), D010 (explicit job states), D014 (reproducibility manifests).
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `feat(jobs): SQLite persistence, background execution, cancellation, and exports (P4.1-P4.5)`.
+- Exact next action: P5.1 - P5.6 interactive frontend workspace.
 
 ### P3: Local text generation, model adapters, and screening policy (P3.1 - P3.4)
 

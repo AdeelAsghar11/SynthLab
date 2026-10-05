@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.config import settings
 from backend.api.health import router as health_router
 from backend.api.specs import router as specs_router
+from backend.api.jobs import router as jobs_router
 
 app = FastAPI(
     title=settings.app_name,
@@ -22,6 +23,7 @@ app.add_middleware(
 # Register routers
 app.include_router(health_router)
 app.include_router(specs_router)
+app.include_router(jobs_router)
 
 @app.get("/")
 def root():

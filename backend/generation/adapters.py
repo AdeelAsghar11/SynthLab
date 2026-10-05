@@ -63,8 +63,8 @@ class TemplateTextAdapter(BaseModelAdapter):
     TEMPLATES = {
         "delivery": [
             "My package shows as delivered, but it has not arrived yet. Order value was PKR {order_value}. Please check status.",
-            "The courier contacted me regarding delivery, but the package was delayed. Need assistance tracking order {order_value}.",
-            "Delivery address confirmation requested for my recent order. Expected arrival was yesterday.",
+            "The courier contacted me regarding delivery, but the package was delayed. Need assistance tracking order PKR {order_value}.",
+            "Delivery address confirmation requested for my recent order of PKR {order_value}. Expected arrival was yesterday.",
         ],
         "payment": [
             "My payment of PKR {order_value} was deducted twice from my account. Please refund the duplicate transaction.",
