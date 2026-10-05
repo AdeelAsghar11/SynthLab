@@ -4,34 +4,34 @@ Last updated: 2026-10-06 (Asia/Karachi).
 
 ## Current state
 
-- Stage: P0 repository setup and scaffolding.
-- Completed: documentation context pack, P0.1 environment & repository inspection. Git initialized on branch main with .gitignore and .env.example.
-- Application code: starting P0.2 minimal scaffold.
+- Stage: P0 repository setup and scaffolding completed; advancing to P1 (Specification contracts).
+- Completed: P0.1 (git init, hardware/environment capture), P0.2 (FastAPI backend with /api/health, React+TypeScript+Vite frontend starter with live status monitor), P0.3 (.gitignore, .env.example, scripts/check.ps1).
+- Application code: P0 minimal runnable scaffold active and passing all tests.
 - Environment: Windows, Python 3.10.11, Node v24.19.0, npm 11.17.0, Git 2.54.0.windows.1.
 - Hardware: 16 GB RAM, NVIDIA GeForce GTX 1660 SUPER (6 GB VRAM). Local Ollama service running with models (qwen2.5:7b, qwen2.5-coder:7b, llama3.2:1b, deepseek-r1:1.5b).
-- Active implementation milestone: P0.2 (minimal runnable backend health route + frontend starter).
+- Active implementation milestone: P1.1 (Versioned specification envelope and initial field variants).
 - Remote repository: not configured yet (local-only git checkpoints until remote URL is supplied by user).
 
 These files belong to SynthLab. They must not be applied to the unrelated AutoRedBlue project simply because similarly named Markdown files exist elsewhere.
 
 ## Exact next action
 
-Implement P0.2: Create the minimal runnable scaffold following ARCHITECTURE.MD layout.
-1. Backend directory structure and FastAPI `/api/health` route.
-2. Frontend starter in `frontend/` (React + TypeScript + Vite).
-3. Test backend `/api/health` and verify local execution.
+Implement P1.1: Define versioned specification envelope in `backend/specs/` using Pydantic v2 models.
+- Support core envelope fields: `spec_version`, `name`, `row_count`, `seed`, `generation_mode`, `fields`, `constraints`, `text_options`.
+- Unknown-key rejection (`extra="forbid"`).
+- Test accepted and rejected fixtures in `tests/test_specs.py`.
 
 ## Milestone status
 
 | Phase | Status | Evidence |
 | --- | --- | --- |
 | Context pack | Prepared | AGENTS.MD and six companion context files |
-| P0 Repository and scaffold | In progress | P0.1 completed; git initialized; hardware profile recorded |
-| P1 Specification contracts | Not started | No implementation evidence |
+| P0 Repository and scaffold | Completed | P0.1 git init & hardware; P0.2 /api/health & Vite UI; P0.3 ignore rules, safe config & check.ps1 |
+| P1 Specification contracts | In progress | Advancing to P1.1 (specification envelope) |
 | P2 Statistical generation | Not started | No implementation evidence |
 | P3 Local text and screening | Not started | No implementation evidence |
 | P4 Jobs, storage, export | Not started | No implementation evidence |
-| P5 Frontend | Not started | No implementation evidence |
+| P5 Frontend | Not started | Scaffolded; feature integration pending |
 | P6 Evaluation | Not started | No implementation evidence |
 | P7 Release | Not started | No implementation evidence |
 
@@ -57,6 +57,26 @@ Implement P0.2: Create the minimal runnable scaffold following ARCHITECTURE.MD l
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P0.2 & P0.3: Minimal runnable scaffold, health route, frontend starter, and check scripts
+
+- Date: 2026-10-06.
+- Status: verified and committed locally.
+- What changed and affected paths:
+  - Scaffolding: Created package directories per ARCHITECTURE.MD (`backend/api`, `backend/specs`, `backend/generation`, `backend/policies`, `backend/validation`, `backend/jobs`, `backend/export`, `tests`, `evals`, `examples`, `docs`).
+  - Backend: Created `backend/config.py`, `backend/main.py`, and `backend/api/health.py` with `/api/health` route verifying storage writability and local Ollama model connection. Created `requirements.txt` and installed in `.venv`.
+  - Frontend: Initialized React 18 + TypeScript + Vite app in `frontend/` with custom CSS dark-mode glassmorphic design system, live system health monitor fetching `/api/health`, and architecture pillars. Configured Vite proxy to backend.
+  - Tests & Verification: Created `tests/test_health.py` and `scripts/check.ps1`.
+- Why this change was necessary: Fulfills P0.2 and P0.3 completion gates to ensure a stable, runnable, and verified baseline before building feature modules.
+- Verification command(s), outcome, and relevant evidence:
+  - Pytest: `.venv\Scripts\pytest -v tests` -> 2 passed in 0.82s (`test_root_endpoint`, `test_health_endpoint`).
+  - Dynamic API check: Verified `/api/health` returns status `ok`, storage writable `true`, and Ollama connected with available models `qwen2.5:7b`, `qwen2.5-coder:7b`, `deepseek-r1:1.5b`, `llama3.2:1b`.
+  - Frontend build: `npm run build` in `frontend/` -> `tsc && vite build` passed in 9.52s with 0 errors.
+  - Unified script: `powershell -ExecutionPolicy Bypass -File scripts\check.ps1` -> All checks passed successfully.
+- Decisions/research added or superseded: None.
+- Known limitation or blocker: Git remote upstream is not yet configured (local-only checkpoint per AGENTS.MD line 74 until user provides remote repository).
+- Git checkpoint: Planned commit: `feat(scaffold): minimal runnable backend and frontend starter (P0.2, P0.3)`.
+- Exact next action: P1.1 (Versioned specification envelope and initial field variants).
 
 ### P0.1: Repository inspection, git initialization, and environment capture
 

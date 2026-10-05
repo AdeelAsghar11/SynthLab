@@ -48,10 +48,11 @@ pnpm-debug.log*
 *.db
 *.sqlite
 *.sqlite3
-backend/data/
-artifacts/
-jobs/
-exports/
+/backend/data/
+/artifacts/
+/jobs/
+/exports/
+
 
 # Model weights and caches
 models/
