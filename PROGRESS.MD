@@ -10,7 +10,8 @@ Last updated: 2026-10-06 (Asia/Karachi).
 - Environment: Windows, Python 3.10.11, Node v24.19.0, npm 11.17.0, Git 2.54.0.windows.1.
 - Hardware: 16 GB RAM, NVIDIA GeForce GTX 1660 SUPER (6 GB VRAM). Local Ollama service running with models (qwen2.5:7b, qwen2.5-coder:7b, llama3.2:1b, deepseek-r1:1.5b).
 - Active implementation milestone: P1.1 (Versioned specification envelope and initial field variants).
-- Remote repository: not configured yet (local-only git checkpoints until remote URL is supplied by user).
+- Remote repository: `git@github.com:AdeelAsghar11/SynthLab.git` (branch `main` tracking `origin/main`, synchronized).
+- Committer identity: Strictly configured as `AdeelAsghar11 <adeelyt157@gmail.com>` locally in repo config.
 
 These files belong to SynthLab. They must not be applied to the unrelated AutoRedBlue project simply because similarly named Markdown files exist elsewhere.
 
@@ -26,7 +27,7 @@ Implement P1.1: Define versioned specification envelope in `backend/specs/` usin
 | Phase | Status | Evidence |
 | --- | --- | --- |
 | Context pack | Prepared | AGENTS.MD and six companion context files |
-| P0 Repository and scaffold | Completed | P0.1 git init & hardware; P0.2 /api/health & Vite UI; P0.3 ignore rules, safe config & check.ps1 |
+| P0 Repository and scaffold | Completed | P0.1 git init & hardware; P0.2 /api/health & Vite UI; P0.3 ignore rules, safe config & check.ps1; pushed to origin/main |
 | P1 Specification contracts | In progress | Advancing to P1.1 (specification envelope) |
 | P2 Statistical generation | Not started | No implementation evidence |
 | P3 Local text and screening | Not started | No implementation evidence |
@@ -39,7 +40,8 @@ Implement P1.1: Define versioned specification envelope in `backend/specs/` usin
 
 | Item | Effect | When needed | Status |
 | --- | --- | --- | --- |
-| Repo/branch/remote | Commit and push destination | P0.1 | Branch `main` initialized locally; remote pending user input |
+| Repo/branch/remote | Commit and push destination | P0.1 | `git@github.com:AdeelAsghar11/SynthLab.git` (main tracking origin/main) |
+| Committer identity | Author provenance | P0.1 | `AdeelAsghar11 <adeelyt157@gmail.com>` enforced locally |
 | OS, RAM, GPU/VRAM | Runtime/model selection | P0.1 / P3.2 | Windows, 16 GB RAM, GTX 1660 SUPER (6 GB VRAM) |
 | Package/runtime compatibility | Runnable locked environment | P0.2/P3.2 | Python 3.10.11, Node v24.19.0 |
 | Model quantization/revision | Memory, quality, provenance | P3.2 | Ollama local (qwen2.5:7b, llama3.2:1b available) |
