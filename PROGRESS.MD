@@ -4,23 +4,24 @@ Last updated: 2026-10-06 (Asia/Karachi).
 
 ## Current state
 
-- Stage: P0 repository setup and scaffolding completed; advancing to P1 (Specification contracts).
-- Completed: P0.1 (git init, hardware/environment capture), P0.2 (FastAPI backend with /api/health, React+TypeScript+Vite frontend starter with live status monitor), P0.3 (.gitignore, .env.example, scripts/check.ps1).
-- Application code: P0 minimal runnable scaffold active and passing all tests.
+- Stage: Phase P1 (Specification contracts) completed; advancing to Phase P2 (Statistical generation).
+- Completed:
+  - P0: Repository initialization, hardware profiling, FastAPI & Vite scaffolding, git remote sync.
+  - P1: Pydantic v2 specification envelope with unknown-key rejection (`extra="forbid"`), 9 discriminated generator variants, semantic validator with cycle detection (Kahn's algorithm), deterministic topological generator, default e-commerce support ticket template, and `/api/specs/validate` & `/api/templates` routes.
+- Application code: All 17 backend tests and frontend production build pass cleanly.
 - Environment: Windows, Python 3.10.11, Node v24.19.0, npm 11.17.0, Git 2.54.0.windows.1.
 - Hardware: 16 GB RAM, NVIDIA GeForce GTX 1660 SUPER (6 GB VRAM). Local Ollama service running with models (qwen2.5:7b, qwen2.5-coder:7b, llama3.2:1b, deepseek-r1:1.5b).
-- Active implementation milestone: P1.1 (Versioned specification envelope and initial field variants).
+- Active implementation milestone: P2.1 (Seeded categorical and boolean generators).
 - Remote repository: `git@github.com:AdeelAsghar11/SynthLab.git` (branch `main` tracking `origin/main`, synchronized).
-- Committer identity: Strictly configured as `AdeelAsghar11 <adeelyt157@gmail.com>` locally in repo config.
+- Committer identity: Strictly configured as `AdeelAsghar11 <adeelyt157@gmail.com>`.
 
 These files belong to SynthLab. They must not be applied to the unrelated AutoRedBlue project simply because similarly named Markdown files exist elsewhere.
 
 ## Exact next action
 
-Implement P1.1: Define versioned specification envelope in `backend/specs/` using Pydantic v2 models.
-- Support core envelope fields: `spec_version`, `name`, `row_count`, `seed`, `generation_mode`, `fields`, `constraints`, `text_options`.
-- Unknown-key rejection (`extra="forbid"`).
-- Test accepted and rejected fixtures in `tests/test_specs.py`.
+Implement P2.1 & P2.2 (Statistical generation engine):
+1. Create `backend/generation/samplers.py` with deterministic seeded NumPy generators for categorical (random draws and largest-remainder fixed proportion allocation), boolean, uniform, and truncated-normal distributions.
+2. Verify repeatability, seed stability, and bounds in `tests/test_samplers.py`.
 
 ## Milestone status
 
@@ -28,8 +29,8 @@ Implement P1.1: Define versioned specification envelope in `backend/specs/` usin
 | --- | --- | --- |
 | Context pack | Prepared | AGENTS.MD and six companion context files |
 | P0 Repository and scaffold | Completed | P0.1 git init & hardware; P0.2 /api/health & Vite UI; P0.3 ignore rules, safe config & check.ps1; pushed to origin/main |
-| P1 Specification contracts | In progress | Advancing to P1.1 (specification envelope) |
-| P2 Statistical generation | Not started | No implementation evidence |
+| P1 Specification contracts | Completed | P1.1 envelope; P1.2 semantic checks; P1.3 topological planner; P1.4 support-ticket template & validate API; 17 tests passed |
+| P2 Statistical generation | In progress | Advancing to P2.1 & P2.2 (sampling algorithms) |
 | P3 Local text and screening | Not started | No implementation evidence |
 | P4 Jobs, storage, export | Not started | No implementation evidence |
 | P5 Frontend | Not started | Scaffolded; feature integration pending |
@@ -59,6 +60,27 @@ Implement P1.1: Define versioned specification envelope in `backend/specs/` usin
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P1: Specification contracts, semantic validation, and default template (P1.1 - P1.4)
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `backend/specs/models.py`: Built versioned Pydantic v2 specification models (`DatasetSpec`, `FieldSpec`, `ConstraintSpec`, `TextOptions`, and 9 generator variants with strict `extra="forbid"` unknown-key rejection).
+  - `backend/specs/validator.py`: Implemented preflight semantic validation and directed dependency cycle detection (Kahn's algorithm) producing deterministic topological generation ordering.
+  - `backend/specs/templates.py`: Defined canonical e-commerce support ticket specification template matching MVP scope.
+  - `backend/specs/__init__.py`: Cleanly exported specification models, validator, and template catalog.
+  - `backend/api/specs.py`: Added `GET /api/templates`, `GET /api/templates/{id}`, and `POST /api/specs/validate` routes.
+  - `backend/main.py`: Registered specification router with root FastAPI application.
+  - `tests/test_specs.py` & `tests/test_api_specs.py`: Added 15 comprehensive unit & integration tests covering accepted/rejected schemas, unknown keys, row/seed bounds, duplicate fields, type compatibility, missing dependencies, cycles, and API endpoints.
+- Why this change was necessary: Fulfills Phase P1 completion gate, establishing declarative configuration contracts before statistical or model generation.
+- Verification command(s), outcome, and relevant evidence:
+  - Pytest: `.venv\Scripts\pytest -v tests` -> All 17 tests passed in 0.46s.
+  - Full check script: `scripts\check.ps1` -> 17 pytest tests passed, frontend TypeScript and Vite production bundle passed in 5.64s.
+- Decisions/research added or superseded: Implements D003 (no personal identities), D004 (declarative allow-listed rules), D005 (probabilistic vs fixed proportion modes).
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `feat(specs): specification contracts, semantic validator, and template API (P1.1-P1.4)`.
+- Exact next action: P2.1 & P2.2 statistical sampling engine.
 
 ### P0.2 & P0.3: Minimal runnable scaffold, health route, frontend starter, and check scripts
 
