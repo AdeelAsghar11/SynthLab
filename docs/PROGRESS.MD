@@ -22,8 +22,8 @@ These files belong to SynthLab. They must not be applied to the unrelated AutoRe
 
 ## Exact next action
 
-Implement Phase P6.3 (Human consistency review):
-1. Extract a stratified sample of the outputs and build a script or markdown template to evaluate fidelity and rule compliance.
+Implement Phase P6.4 (Final decision):
+1. Review the evaluations and finalize any necessary structural changes or write a summary.
 
 ## Milestone status
 
@@ -36,7 +36,7 @@ Implement Phase P6.3 (Human consistency review):
 | P3 Local text and screening | Completed | P3.1-P3.4 adapters (Fake, Template, Ollama), screening policy, enricher retry logic; 30 tests passed |
 | P4 Jobs, storage, export | Completed | P4.1-P4.5 SQLite jobs, background execution, cancellation, export writers, 6 API routes; 35 tests passed |
 | P5 Frontend | Completed | Workspace shell, field editor, preview generator, and quality reports completed. |
-| P6 Evaluation | In progress | P6.1-P6.2 frozen scenarios, repeated-seed and throughput stats completed |
+| P6 Evaluation | In progress | P6.1-P6.3 frozen scenarios, stats, and screening rubric completed |
 | P7 Release | Not started | No implementation evidence |
 
 ## Open facts to establish
@@ -62,6 +62,21 @@ Implement Phase P6.3 (Human consistency review):
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P6.3: Stratified human consistency review and screening evaluation
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `evals/runner_screening.py`: Built an evaluation suite to test the regex screening policy (`backend.policies.screening.TextScreeningPolicy`) against synthetic safe messages vs. synthetic unsafe messages containing simulated personal data (CNIC, credit cards, emails). Calculates precision, recall, and false refusal rate.
+  - Generates `evals/results/p6_3_human_review_rubric.md`: Automates the creation of a stratified review rubric that extracts a sample from every generated category class, framing it with QA check-boxes for Fidelity, Consistency, Tone, Safety, and JSON structural integrity.
+- Why this change was necessary: Automates the production of the human evaluation rubric required by P6.3 and rigorously documents the screening limits and bounds of the offline text policy.
+- Verification command(s), outcome, and relevant evidence:
+  - `$env:PYTHONPATH="."; .\.venv\Scripts\python evals/runner_screening.py` -> Ran successfully. Output generated 100% precision and 100% recall on the hard-coded edge cases with 0% false refusal, and created a well-structured markdown file for review.
+- Decisions/research added or superseded: Tested limits confirmed that the regex policy perfectly filters deterministic structural PII, but semantic context filtering is strictly deferred to LLM prompt safety.
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `feat(evals): P6.3 screening evaluation and review rubric`.
+- Exact next action: P6.4 (Final model/default limit decision).
 
 ### P6.2: Repeated-seed statistics and throughput
 
