@@ -7,6 +7,12 @@ interface QualityReportProps {
   hasLocalModel: boolean;
 }
 
+const isFiniteNumber = (value: number | null | undefined): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
+
+const formatStatistic = (value: number | null | undefined): string =>
+  isFiniteNumber(value) ? value.toFixed(2) : '—';
+
 export const QualityReport: React.FC<QualityReportProps> = ({ spec, hasLocalModel }) => {
   const [jobId, setJobId] = useState<string | null>(null);
   const [status, setStatus] = useState<JobStatusResponse | null>(null);
@@ -118,7 +124,7 @@ export const QualityReport: React.FC<QualityReportProps> = ({ spec, hasLocalMode
         </div>
 
         {error && (
-          <div style={{ padding: '0.85rem', background: 'var(--accent-rose)', color: '#FFFFFF', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+          <div role="alert" style={{ padding: '0.85rem', background: 'var(--accent-rose)', color: '#FFFFFF', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             {error}
           </div>
         )}
@@ -143,7 +149,7 @@ export const QualityReport: React.FC<QualityReportProps> = ({ spec, hasLocalMode
             </div>
 
             {status.error_message && (
-              <div style={{ marginTop: '0.5rem', color: 'var(--accent-rose)', fontSize: '0.8rem' }}>
+              <div role="alert" style={{ marginTop: '0.5rem', color: 'var(--accent-rose)', fontSize: '0.8rem' }}>
                 Error: {status.error_message}
               </div>
             )}
@@ -203,10 +209,10 @@ export const QualityReport: React.FC<QualityReportProps> = ({ spec, hasLocalMode
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                   <div>Unique Values: {summary.unique_count}</div>
                   <div>Null Count: {summary.null_count}</div>
-                  {summary.numeric_min !== undefined && (
+                  {isFiniteNumber(summary.numeric_min) && isFiniteNumber(summary.numeric_max) && (
                     <div style={{ marginTop: '0.5rem' }}>
-                      Range: [{summary.numeric_min.toFixed(2)}, {summary.numeric_max?.toFixed(2)}]<br/>
-                      Mean: {summary.numeric_mean?.toFixed(2)} ± {summary.numeric_std?.toFixed(2)}
+                      Range: [{formatStatistic(summary.numeric_min)}, {formatStatistic(summary.numeric_max)}]<br/>
+                      Mean: {formatStatistic(summary.numeric_mean)} ± {formatStatistic(summary.numeric_std)}
                     </div>
                   )}
                   {summary.category_frequencies && (

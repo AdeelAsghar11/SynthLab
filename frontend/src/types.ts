@@ -86,12 +86,12 @@ export interface ColumnSummary {
   type: string;
   null_count: number;
   unique_count: number;
-  category_counts?: Record<string, number>;
-  category_frequencies?: Record<string, number>;
-  numeric_min?: number;
-  numeric_max?: number;
-  numeric_mean?: number;
-  numeric_std?: number;
+  category_counts?: Record<string, number> | null;
+  category_frequencies?: Record<string, number> | null;
+  numeric_min?: number | null;
+  numeric_max?: number | null;
+  numeric_mean?: number | null;
+  numeric_std?: number | null;
 }
 
 export interface DatasetValidationReport {

@@ -112,7 +112,11 @@ export const App: React.FC = () => {
             style={{ width: '10px', height: '10px' }}
           />
           <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>
-            {healthLoading ? 'Connecting to SynthLab Core...' : healthError ? `System Offline: ${healthError}` : 'System Ready • Local-First Mode'}
+            {healthLoading
+              ? 'Connecting to SynthLab Core...'
+              : healthError
+                ? `System Offline: ${healthError}`
+                : `System Ready • Local-First Mode${lastChecked ? ` • checked ${lastChecked}` : ''}`}
           </span>
           {health?.inference.status === 'connected' && (
              <span style={{ fontSize: '0.8rem', color: 'var(--accent-emerald)', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
