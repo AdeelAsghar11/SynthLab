@@ -4,6 +4,7 @@ import { HealthResponse, TemplateSummary, DatasetSpec } from './types';
 import { TemplatePicker } from './components/TemplatePicker';
 import { SpecEditor } from './components/SpecEditor';
 import { PreviewGenerator } from './components/PreviewGenerator';
+import { QualityReport } from './components/QualityReport';
 
 export const App: React.FC = () => {
   // Runtime Health State
@@ -317,16 +318,18 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 3: Quality Reports & Manifest Placeholder (Next P5.6 milestone) */}
-      {activeTab === 'quality' && (
+      {/* Tab 3: Quality Reports & Manifest (P5.6) */}
+      {activeTab === 'quality' && activeSpec ? (
+        <QualityReport spec={activeSpec} hasLocalModel={health?.inference.status === 'connected'} />
+      ) : activeTab === 'quality' && (
         <div className="card-panel" style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🛡️</div>
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Data Quality Reports & Export Manifests</h3>
+          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚠️</div>
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No Specification Selected</h3>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 1.5rem auto', fontSize: '0.9rem' }}>
-            Ready for Milestone P5.6: Category distribution checks, numerical range statistics, formula-safe CSV & JSON dataset downloads, and provenance manifests.
+            Please select a template and configure the dataset specification first.
           </p>
           <button className="btn-secondary" onClick={() => setActiveTab('spec')}>
-            ← Back to Specification
+            ← Go to Specification
           </button>
         </div>
       )}
