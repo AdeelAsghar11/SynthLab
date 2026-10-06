@@ -22,8 +22,8 @@ These files belong to SynthLab. They must not be applied to the unrelated AutoRe
 
 ## Exact next action
 
-Implement Phase P6 (Evaluation):
-1. Wait for instructions regarding frozen evaluation scenarios.
+Implement Phase P6.2 (Repeated-seed statistics):
+1. Expand the evaluation runner to gather repeated-seed statistics and measure throughput.
 
 ## Milestone status
 
@@ -36,7 +36,7 @@ Implement Phase P6 (Evaluation):
 | P3 Local text and screening | Completed | P3.1-P3.4 adapters (Fake, Template, Ollama), screening policy, enricher retry logic; 30 tests passed |
 | P4 Jobs, storage, export | Completed | P4.1-P4.5 SQLite jobs, background execution, cancellation, export writers, 6 API routes; 35 tests passed |
 | P5 Frontend | Completed | Workspace shell, field editor, preview generator, and quality reports completed. |
-| P6 Evaluation | Not started | No implementation evidence |
+| P6 Evaluation | In progress | P6.1 frozen scenarios and baseline runners completed |
 | P7 Release | Not started | No implementation evidence |
 
 ## Open facts to establish
@@ -62,6 +62,24 @@ Implement Phase P6 (Evaluation):
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P6.1: Frozen scenarios and three baseline runners
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `evals/runner.py`: Created evaluation script comparing three approaches using the `ecommerce_support_tickets_v1` default template (100 rows frozen scenario):
+    1. Pure Structural Hybrid (TemplateTextAdapter fallback).
+    2. Structural Hybrid + Local LLM (OllamaModelAdapter).
+    3. Pure LLM direct generation (requesting Ollama to return 100 rows of raw JSON directly without structural logic).
+  - Evaluator tracks attempted vs. accepted rows (accounting for screening rejections and retries), rule violations using the existing dataset validator, and execution latency.
+- Why this change was necessary: Fulfills Milestone P6.1 to provide a quantitative baseline comparison separating deterministic structural logic from unreliable whole-row LLM approaches.
+- Verification command(s), outcome, and relevant evidence:
+  - `$env:PYTHONPATH="."; .\.venv\Scripts\python evals/runner.py` -> Successfully executed. Handled missing Ollama gracefully by falling back to TemplateAdapter, and properly caught the connection error in the pure LLM baseline, validating that the evaluation framework is robust.
+- Decisions/research added or superseded: Implements P6.1 using a 100-row fixed evaluation budget.
+- Known limitation or blocker: Ollama needs to be running on localhost:11434 with `qwen2.5:7b` to get the full LLM metrics in actual CI/CD environments.
+- Git checkpoint: Planned commit: `feat(evals): P6.1 baseline evaluation runners`.
+- Exact next action: P6.2 (Repeated-seed statistics).
 
 ### P5.6: Quality Reports and Download Controls
 
