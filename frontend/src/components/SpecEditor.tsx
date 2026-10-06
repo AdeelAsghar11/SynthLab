@@ -80,7 +80,7 @@ export const SpecEditor: React.FC<SpecEditorProps> = ({ initialSpec, onSpecChang
         style={{
           marginBottom: '1.25rem',
           border: validation?.valid ? '1px solid var(--accent-emerald)' : validationError || (validation && !validation.valid) ? '1px solid var(--accent-rose)' : '1px solid var(--border-subtle)',
-          background: validation?.valid ? 'rgba(16, 185, 129, 0.05)' : validationError || (validation && !validation.valid) ? 'rgba(244, 63, 94, 0.05)' : 'var(--bg-card)'
+          background: validation?.valid ? 'var(--bg-card-hover)' : validationError || (validation && !validation.valid) ? 'var(--accent-rose)' : 'var(--bg-card)'
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -173,7 +173,7 @@ export const SpecEditor: React.FC<SpecEditorProps> = ({ initialSpec, onSpecChang
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {spec.fields.map((field, index) => (
-            <div key={index} style={{ padding: '1rem', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', background: 'rgba(15, 23, 42, 0.4)' }}>
+            <div key={index} style={{ padding: '1rem', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-card-hover)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <h4 style={{ margin: 0, fontSize: '0.95rem' }}>Field #{index + 1}</h4>
                 <button
@@ -255,7 +255,7 @@ export const SpecEditor: React.FC<SpecEditorProps> = ({ initialSpec, onSpecChang
               </div>
               
               {/* Note: Generator specific configuration form can be expanded here based on kind */}
-              <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)' }}>
+              <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--bg-card-hover)', borderRadius: 'var(--radius-sm)' }}>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Raw Generator Config:</div>
                 <textarea 
                   className="form-input"

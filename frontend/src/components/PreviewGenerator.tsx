@@ -81,7 +81,7 @@ export const PreviewGenerator: React.FC<PreviewGeneratorProps> = ({ spec, hasLoc
       <div style={{ overflowX: 'auto', marginTop: '1rem', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
           <thead>
-            <tr style={{ background: 'rgba(15, 23, 42, 0.6)', borderBottom: '1px solid var(--border-subtle)' }}>
+            <tr style={{ background: 'var(--bg-card-hover)', borderBottom: '1px solid var(--border-subtle)' }}>
               {columns.map(col => (
                 <th key={col} style={{ padding: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{col}</th>
               ))}
@@ -89,7 +89,7 @@ export const PreviewGenerator: React.FC<PreviewGeneratorProps> = ({ spec, hasLoc
           </thead>
           <tbody>
             {previewData.map((row, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid var(--border-subtle)', background: i % 2 === 0 ? 'var(--bg-card)' : 'rgba(255, 255, 255, 0.02)' }}>
+              <tr key={i} style={{ borderBottom: '1px solid var(--border-subtle)', background: i % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-card-hover)' }}>
                 {columns.map(col => {
                   const val = row[col];
                   const displayVal = val === null ? 'null' : typeof val === 'object' ? JSON.stringify(val) : String(val);
@@ -147,13 +147,13 @@ export const PreviewGenerator: React.FC<PreviewGeneratorProps> = ({ spec, hasLoc
         </div>
 
         {error && (
-          <div style={{ padding: '0.85rem', background: 'rgba(244, 63, 94, 0.1)', color: 'var(--accent-rose)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+          <div style={{ padding: '0.85rem', background: 'var(--accent-rose)', color: '#FFFFFF', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             {error}
           </div>
         )}
 
         {status && (
-          <div style={{ padding: '1rem', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', background: 'rgba(15, 23, 42, 0.4)' }}>
+          <div style={{ padding: '1rem', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-card-hover)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
               <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Job Status: <span style={{ textTransform: 'uppercase' }}>{status.status}</span></div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ID: {status.id}</div>

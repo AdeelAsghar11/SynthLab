@@ -39,18 +39,18 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({
                   padding: '1rem',
                   borderRadius: 'var(--radius-sm)',
                   border: isSelected
-                    ? '1px solid var(--accent-cyan)'
+                    ? '1.5px solid var(--accent-rose)'
                     : '1px solid var(--border-subtle)',
-                  background: isSelected ? 'rgba(56, 189, 248, 0.08)' : 'rgba(15, 23, 42, 0.5)',
-                  marginBottom: '0.75rem',
+                  background: isSelected ? 'var(--bg-card-hover)' : 'var(--bg-card)',
+                  marginBottom: '1rem',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: 'background 200ms ease-out',
                 }}
                 onClick={() => onSelectTemplate(tmpl.id)}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 600 }}>{tmpl.name}</h4>
-                  <span className="tag tag-cyan">{tmpl.field_count} Fields</span>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{tmpl.name}</h4>
+                  <span className="badge badge-mono">{tmpl.field_count} Fields</span>
                 </div>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
                   {tmpl.description}
@@ -61,13 +61,13 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({
                   </span>
                   <button
                     className="btn-secondary"
-                    style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
+                    style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelectTemplate(tmpl.id);
                     }}
                   >
-                    {isSelected ? '✓ Loaded' : 'Load Template'}
+                    {isSelected ? 'LOADED' : 'LOAD TEMPLATE'}
                   </button>
                 </div>
               </div>

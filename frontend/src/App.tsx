@@ -169,9 +169,9 @@ export const App: React.FC = () => {
                 style={{
                   padding: '0.85rem',
                   borderRadius: 'var(--radius-sm)',
-                  background: 'rgba(244, 63, 94, 0.1)',
-                  border: '1px solid rgba(244, 63, 94, 0.3)',
-                  color: 'var(--accent-rose)',
+                  background: 'var(--accent-rose)',
+                  border: '1px solid var(--accent-rose)',
+                  color: '#FFFFFF',
                   fontSize: '0.85rem',
                   marginTop: '0.75rem',
                 }}

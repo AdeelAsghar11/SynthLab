@@ -118,13 +118,13 @@ export const QualityReport: React.FC<QualityReportProps> = ({ spec, hasLocalMode
         </div>
 
         {error && (
-          <div style={{ padding: '0.85rem', background: 'rgba(244, 63, 94, 0.1)', color: 'var(--accent-rose)', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+          <div style={{ padding: '0.85rem', background: 'var(--accent-rose)', color: '#FFFFFF', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             {error}
           </div>
         )}
 
         {status && (
-          <div style={{ padding: '1rem', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', background: 'rgba(15, 23, 42, 0.4)' }}>
+          <div style={{ padding: '1rem', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-card-hover)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
               <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Job Status: <span style={{ textTransform: 'uppercase' }}>{status.status}</span></div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>ID: {status.id}</div>
@@ -184,7 +184,7 @@ export const QualityReport: React.FC<QualityReportProps> = ({ spec, hasLocalMode
           </div>
           
           {report.violations && report.violations.length > 0 && (
-            <div style={{ background: 'rgba(244, 63, 94, 0.05)', border: '1px solid rgba(244, 63, 94, 0.2)', padding: '0.85rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem' }}>
+            <div style={{ background: 'var(--accent-rose)', color: '#FFFFFF', border: '1px solid var(--accent-rose)', padding: '0.85rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem' }}>
               <h4 style={{ color: 'var(--accent-rose)', marginTop: 0, fontSize: '0.9rem' }}>Violations</h4>
               <ul style={{ fontSize: '0.8rem', paddingLeft: '1.5rem', marginBottom: 0 }}>
                 {report.violations.map((v, i) => (
