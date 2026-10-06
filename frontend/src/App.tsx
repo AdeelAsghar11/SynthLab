@@ -5,6 +5,7 @@ import { TemplatePicker } from './components/TemplatePicker';
 import { SpecEditor } from './components/SpecEditor';
 import { PreviewGenerator } from './components/PreviewGenerator';
 import { QualityReport } from './components/QualityReport';
+import { TestTube, Lock, ClipboardList, Zap, ShieldCheck, AlertTriangle, Cpu, ArrowLeft } from 'lucide-react';
 
 export const App: React.FC = () => {
   // Runtime Health State
@@ -79,7 +80,7 @@ export const App: React.FC = () => {
       <header className="header" id="synthlab-header">
         <div className="brand-wrapper">
           <div className="brand-icon-box" aria-hidden="true">
-            🧪
+            <TestTube size={44} />
           </div>
           <div>
             <h1 className="brand-title" id="app-title">SynthLab</h1>
@@ -97,13 +98,13 @@ export const App: React.FC = () => {
             v{health?.version || '0.1.0'}
           </span>
           <span className="badge" id="local-mode-badge">
-            🔒 Local-First (No Cloud Egress)
+            <Lock size={14} /> Local-First (No Cloud Egress)
           </span>
         </div>
       </header>
 
       {/* Mini Health Bar instead of massive dashboard */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', padding: '0.75rem 1rem', background: 'var(--surface-light)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', padding: '0.75rem 1rem', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
           <span
             className={`status-indicator ${
               healthLoading ? 'loading' : healthError ? 'offline' : 'online'
@@ -115,7 +116,7 @@ export const App: React.FC = () => {
           </span>
           {health?.inference.status === 'connected' && (
              <span style={{ fontSize: '0.8rem', color: 'var(--accent-emerald)', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span className="badge badge-mono">LLM: {health.inference.available_models?.[0] || 'Ollama'}</span>
+                <span className="badge badge-mono"><Cpu size={14} /> LLM: {health.inference.available_models?.[0] || 'Ollama'}</span>
              </span>
           )}
           {health?.inference.status !== 'connected' && !healthLoading && !healthError && (
@@ -128,27 +129,42 @@ export const App: React.FC = () => {
 
 
       {/* Workspace Tabs Navigation */}
-      <div className="workspace-tabs" id="workspace-tabs">
+      <div className="workspace-tabs" id="workspace-tabs" role="tablist">
         <button
           id="tab-spec-btn"
+          role="tab"
+          aria-selected={activeTab === 'spec'}
+          aria-controls="spec-workspace-grid"
           className={`workspace-tab ${activeTab === 'spec' ? 'active' : ''}`}
           onClick={() => setActiveTab('spec')}
+          onKeyDown={(e) => { if (e.key === 'ArrowRight') document.getElementById('tab-preview-btn')?.focus(); }}
         >
-          📋 1. Configure Dataset
+          <ClipboardList size={18} aria-hidden="true" /> <span style={{marginLeft: '8px'}}>1. Configure Dataset</span>
         </button>
         <button
           id="tab-preview-btn"
+          role="tab"
+          aria-selected={activeTab === 'preview'}
+          aria-controls="preview-workspace-grid"
           className={`workspace-tab ${activeTab === 'preview' ? 'active' : ''}`}
           onClick={() => setActiveTab('preview')}
+          onKeyDown={(e) => { 
+            if (e.key === 'ArrowRight') document.getElementById('tab-quality-btn')?.focus(); 
+            if (e.key === 'ArrowLeft') document.getElementById('tab-spec-btn')?.focus();
+          }}
         >
-          ⚡ 2. Generate Data
+          <Zap size={18} aria-hidden="true" /> <span style={{marginLeft: '8px'}}>2. Generate Data</span>
         </button>
         <button
           id="tab-quality-btn"
+          role="tab"
+          aria-selected={activeTab === 'quality'}
+          aria-controls="quality-workspace-grid"
           className={`workspace-tab ${activeTab === 'quality' ? 'active' : ''}`}
           onClick={() => setActiveTab('quality')}
+          onKeyDown={(e) => { if (e.key === 'ArrowLeft') document.getElementById('tab-preview-btn')?.focus(); }}
         >
-          🛡️ 3. Review & Export
+          <ShieldCheck size={18} aria-hidden="true" /> <span style={{marginLeft: '8px'}}>3. Review & Export</span>
         </button>
       </div>
 
@@ -207,14 +223,16 @@ export const App: React.FC = () => {
       {activeTab === 'preview' && activeSpec ? (
         <PreviewGenerator spec={activeSpec} hasLocalModel={health?.inference.status === 'connected'} />
       ) : activeTab === 'preview' && (
-        <div className="card-panel" style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚠️</div>
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No Specification Selected</h3>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 1.5rem auto', fontSize: '0.9rem' }}>
+        <div className="card-panel" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', color: 'var(--accent-amber)' }}>
+            <AlertTriangle size={56} aria-hidden="true" />
+          </div>
+          <h3 style={{ fontSize: '1.35rem', marginBottom: '0.75rem' }}>No Specification Selected</h3>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto 2rem auto', fontSize: '0.95rem' }}>
             Please select a template and configure the dataset specification first.
           </p>
           <button className="btn-secondary" onClick={() => setActiveTab('spec')}>
-            ← Go to Specification
+            <ArrowLeft size={16} aria-hidden="true" /> <span style={{marginLeft: '6px'}}>Go to Specification</span>
           </button>
         </div>
       )}
@@ -223,14 +241,16 @@ export const App: React.FC = () => {
       {activeTab === 'quality' && activeSpec ? (
         <QualityReport spec={activeSpec} hasLocalModel={health?.inference.status === 'connected'} />
       ) : activeTab === 'quality' && (
-        <div className="card-panel" style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚠️</div>
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No Specification Selected</h3>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 1.5rem auto', fontSize: '0.9rem' }}>
+        <div className="card-panel" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', color: 'var(--accent-amber)' }}>
+            <AlertTriangle size={56} aria-hidden="true" />
+          </div>
+          <h3 style={{ fontSize: '1.35rem', marginBottom: '0.75rem' }}>No Specification Selected</h3>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto 2rem auto', fontSize: '0.95rem' }}>
             Please select a template and configure the dataset specification first.
           </p>
           <button className="btn-secondary" onClick={() => setActiveTab('spec')}>
-            ← Go to Specification
+            <ArrowLeft size={16} aria-hidden="true" /> <span style={{marginLeft: '6px'}}>Go to Specification</span>
           </button>
         </div>
       )}
