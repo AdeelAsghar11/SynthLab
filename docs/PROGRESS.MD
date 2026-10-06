@@ -69,6 +69,23 @@ Implement Phase P5 (Frontend workspace):
 
 ## Work log
 
+### DOC-002: Reorganize documentation files into docs/ directory
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - Moved context markdown files to `docs/`: `docs/ARCHITECTURE.MD`, `docs/DECISIONS.MD`, `docs/PROGRESS.MD`, `docs/PROJECT.MD`, `docs/RESEARCH.MD`, `docs/ROADMAP.MD`.
+  - Retained `AGENTS.MD` and `README.md` at root per repository requirements.
+  - Updated file path references in `AGENTS.MD`, `docs/PROJECT.MD`, and `README.md`.
+- Why this change was necessary: User direction to consolidate documentation in `docs/` while keeping root agent instructions and readme.
+- Verification command(s), outcome, and relevant evidence:
+  - `.venv\Scripts\pytest -q` -> 35 passed.
+  - `npm run build` -> frontend build passed.
+- Decisions/research added or superseded: None.
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `docs(structure): move documentation Markdown files to docs/ and retain agents.md in root`.
+- Exact next action: Phase P5 (Interactive frontend workspace).
+
 ### P4: SQLite persistence, background jobs, cancellation, and export writers (P4.1 - P4.5)
 
 - Date: 2026-10-06.

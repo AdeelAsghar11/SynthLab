@@ -14,15 +14,15 @@ The user's development requirement is incremental: small modules, manageable pha
 
 | File | Canonical responsibility |
 | --- | --- |
-| AGENTS.MD | Coding-agent workflow and mandatory operating instructions |
-| PROJECT.MD | Goals, product scope, acceptance criteria, assumptions |
-| ARCHITECTURE.MD | Components, contracts, data flow, security boundaries |
-| DECISIONS.MD | Decisions, rationale, tradeoffs, and superseded choices |
-| ROADMAP.MD | Ordered milestones, dependencies, completion gates |
-| PROGRESS.MD | Actual work, evidence, blockers, and exact next action |
-| RESEARCH.MD | Sources, findings, uncertainties, model/license evaluation |
+| AGENTS.MD (root) | Coding-agent workflow and mandatory operating instructions |
+| docs/PROJECT.MD | Goals, product scope, acceptance criteria, assumptions |
+| docs/ARCHITECTURE.MD | Components, contracts, data flow, security boundaries |
+| docs/DECISIONS.MD | Decisions, rationale, tradeoffs, and superseded choices |
+| docs/ROADMAP.MD | Ordered milestones, dependencies, completion gates |
+| docs/PROGRESS.MD | Actual work, evidence, blockers, and exact next action |
+| docs/RESEARCH.MD | Sources, findings, uncertainties, model/license evaluation |
 
-Start with AGENTS.MD, then PROJECT.MD and PROGRESS.MD. Read ARCHITECTURE.MD, DECISIONS.MD, ROADMAP.MD, and RESEARCH.MD before implementation. Current repository evidence takes precedence over stale status claims. Explicit user direction takes precedence over this planning baseline; reconcile affected documents when direction changes.
+Start with AGENTS.MD, then docs/PROJECT.MD and docs/PROGRESS.MD. Read docs/ARCHITECTURE.MD, docs/DECISIONS.MD, docs/ROADMAP.MD, and docs/RESEARCH.MD before implementation. Current repository evidence takes precedence over stale status claims. Explicit user direction takes precedence over this planning baseline; reconcile affected documents when direction changes.
 
 ## Focused MVP use case
 

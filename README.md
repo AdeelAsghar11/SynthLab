@@ -50,5 +50,5 @@ SynthLab/
 ├── tests/              # Pytest test suite
 ├── evals/              # Frozen scenarios and evaluation fixtures
 ├── examples/           # Sample specifications
-└── docs/               # Architecture, threat model, and dataset cards
+└── docs/               # Project specs, architecture, roadmap, decisions, and research
 ```

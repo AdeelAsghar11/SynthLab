@@ -8,20 +8,20 @@ The user requested the filename AGENTS.MD. Some tools automatically discover onl
 
 ## 1. Start every session by restoring context
 
-1. Read AGENTS.MD, PROJECT.MD, and PROGRESS.MD.
-2. Read ARCHITECTURE.MD, DECISIONS.MD, ROADMAP.MD, and relevant RESEARCH.MD entries before implementing.
+1. Read AGENTS.MD, docs/PROJECT.MD, and docs/PROGRESS.MD.
+2. Read docs/ARCHITECTURE.MD, docs/DECISIONS.MD, docs/ROADMAP.MD, and relevant docs/RESEARCH.MD entries before implementing.
 3. Inspect existing repository agent guidance, git status, current branch, remotes, recent commits, and relevant files. Use rg for searches.
 4. Preserve unrelated user changes. Do not reset, delete, overwrite, or stage them.
 5. Reconcile documentation with actual code and test evidence; mark stale statements rather than treating them as facts.
-6. Identify exactly one next bounded step and its completion gate. Record it in PROGRESS.MD before substantial work.
+6. Identify exactly one next bounded step and its completion gate. Record it in docs/PROGRESS.MD before substantial work.
 
 Never begin by generating the whole application. Never apply this pack to AutoRedBlue or another unrelated repository. Repository destination and hardware must be established from current evidence, not inferred from other conversations.
 
 ## 2. Work in small modules, phases, and milestones
 
-- ROADMAP.MD is the ordered scope plan; PROGRESS.MD records actual state.
+- docs/ROADMAP.MD is the ordered scope plan; docs/PROGRESS.MD records actual state.
 - Implement one focused, independently understandable behavior per step.
-- A milestone may require several steps. Subdivide it in ROADMAP.MD before coding if it spans multiple distinct components.
+- A milestone may require several steps. Subdivide it in docs/ROADMAP.MD before coding if it spans multiple distinct components.
 - Prefer a thin vertical slice with a verifiable outcome over a bulk scaffold full of placeholders.
 - Complete the current step's verification and git checkpoint before starting the next.
 - Within a broad authorized build request, continue autonomously through steps with separate checkpoints; do not demand approval after every reversible step.
@@ -35,14 +35,14 @@ Always record what changed, why, how it was verified, remaining limitations/bloc
 
 | Change | Required context update |
 | --- | --- |
-| Every development step | PROGRESS.MD: work log, evidence, current state, next action |
-| Milestone started/completed/split/reordered | ROADMAP.MD and PROGRESS.MD |
-| Component, contract, API, storage, state machine, or data flow changed | ARCHITECTURE.MD |
-| Material technology/security/scope tradeoff selected | Append DECISIONS.MD entry and update affected canonical documents |
-| User goal, essential feature, constraint, acceptance criterion changed | PROJECT.MD |
-| New external fact, model/package/license choice, experiment result | RESEARCH.MD with source/revision/date and limits |
+| Every development step | docs/PROGRESS.MD: work log, evidence, current state, next action |
+| Milestone started/completed/split/reordered | docs/ROADMAP.MD and docs/PROGRESS.MD |
+| Component, contract, API, storage, state machine, or data flow changed | docs/ARCHITECTURE.MD |
+| Material technology/security/scope tradeoff selected | Append docs/DECISIONS.MD entry and update affected canonical documents |
+| User goal, essential feature, constraint, acceptance criterion changed | docs/PROJECT.MD |
+| New external fact, model/package/license choice, experiment result | docs/RESEARCH.MD with source/revision/date and limits |
 
-Update relevant files, not all seven mechanically. Keep responsibilities consistent. Do not state tests passed unless run; do not invent metrics, sources, commits, model fit, or push success. Preserve material decision and failure history. Mark superseded choices. Use the PROGRESS.MD log template.
+Update relevant files, not all seven mechanically. Keep responsibilities consistent. Do not state tests passed unless run; do not invent metrics, sources, commits, model fit, or push success. Preserve material decision and failure history. Mark superseded choices. Use the docs/PROGRESS.MD log template.
 
 ## 4. Verify the behavior being changed
 
@@ -76,7 +76,7 @@ If no remote/upstream, repository destination, authentication, commit identity, 
 
 ### Avoid self-referential commit loops
 
-The implementation commit includes its context update, but its own hash cannot be embedded in that same commit. Record the planned commit subject/step in PROGRESS.MD, obtain exact hashes from git log, and communicate verified push outcome after the push. The next normal step can append prior checkpoint evidence. Do not create an endless extra documentation commit only to record the immediately preceding hash or mark a not-yet-executed push as successful.
+The implementation commit includes its context update, but its own hash cannot be embedded in that same commit. Record the planned commit subject/step in docs/PROGRESS.MD, obtain exact hashes from git log, and communicate verified push outcome after the push. The next normal step can append prior checkpoint evidence. Do not create an endless extra documentation commit only to record the immediately preceding hash or mark a not-yet-executed push as successful.
 
 ## 6. Preserve architecture and privacy boundaries
 
@@ -106,7 +106,7 @@ The implementation commit includes its context update, but its own hash cannot b
 
 ## 8. Communication and handoff
 
-Keep updates concise and concrete. Explain what changed and why, test evidence, material limits, and exact next action. Do not expose secrets or raw sensitive data. Before a context reset, update PROGRESS.MD with current in-progress changes, last verified checkpoint, push state, blockers, and commands needed to resume.
+Keep updates concise and concrete. Explain what changed and why, test evidence, material limits, and exact next action. Do not expose secrets or raw sensitive data. Before a context reset, update docs/PROGRESS.MD with current in-progress changes, last verified checkpoint, push state, blockers, and commands needed to resume.
 
 Do not ask for repeated permission for already authorized reversible work or routine commits/pushes. Ask only when a genuinely missing destination, conflicting requirement, or consequential scope decision prevents correct action. Do not treat absent answers as credentials or authorization for a new remote.
 
