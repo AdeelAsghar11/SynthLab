@@ -22,8 +22,8 @@ These files belong to SynthLab. They must not be applied to the unrelated AutoRe
 
 ## Exact next action
 
-Implement Phase P6.4 (Final decision):
-1. Review the evaluations and finalize any necessary structural changes or write a summary.
+Implement Phase P7 (Release):
+1. Prepare repository for final presentation/release by polishing documentation.
 
 ## Milestone status
 
@@ -36,7 +36,7 @@ Implement Phase P6.4 (Final decision):
 | P3 Local text and screening | Completed | P3.1-P3.4 adapters (Fake, Template, Ollama), screening policy, enricher retry logic; 30 tests passed |
 | P4 Jobs, storage, export | Completed | P4.1-P4.5 SQLite jobs, background execution, cancellation, export writers, 6 API routes; 35 tests passed |
 | P5 Frontend | Completed | Workspace shell, field editor, preview generator, and quality reports completed. |
-| P6 Evaluation | In progress | P6.1-P6.3 frozen scenarios, stats, and screening rubric completed |
+| P6 Evaluation | Completed | P6.1-P6.4 frozen scenarios, throughput, screening rubrics, and final report completed |
 | P7 Release | Not started | No implementation evidence |
 
 ## Open facts to establish
@@ -62,6 +62,19 @@ Implement Phase P6.4 (Final decision):
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P6.4: Final model/default limit decision and report
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `evals/results/p6_4_final_decision.md`: Authored the final architectural decision report that solidifies the Structural Hybrid approach over Pure Whole-Row LLM generation. 
+- Why this change was necessary: Fulfills Milestone P6.4 by drawing evidence-based conclusions from P6.1-P6.3 and explicitly documenting the platform's limits (no private-source fidelity, no semantic intent filtering) to prevent over-claiming privacy features.
+- Verification command(s), outcome, and relevant evidence: Reviewed the markdown report which clearly maps decisions to the prior quantitative baselines.
+- Decisions/research added or superseded: The pure LLM approach is formally rejected due to 0% validity against schemas.
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `docs(evals): P6.4 final decision report and limits`.
+- Exact next action: Phase P7 (Release and portfolio).
 
 ### P6.3: Stratified human consistency review and screening evaluation
 
