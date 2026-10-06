@@ -1,6 +1,7 @@
-from typing import Any
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
+from backend.config import settings
+from backend.specs.ai_builder import AISchemaBuilderError, generate_dataset_spec
 from backend.specs.models import DatasetSpec
 from backend.specs.templates import get_default_support_ticket_spec
 from backend.specs.validator import validate_spec_semantics, get_topological_generation_order
@@ -23,6 +24,9 @@ class TemplateSummary(BaseModel):
     description: str
     field_count: int
     default_row_count: int
+
+class GenerateSpecRequest(BaseModel):
+    prompt: str = Field(min_length=3, max_length=2000)
 
 @router.get("/templates", response_model=list[TemplateSummary])
 def list_templates() -> list[TemplateSummary]:
@@ -68,3 +72,19 @@ def validate_specification(spec: DatasetSpec) -> SpecValidationResponse:
         diagnostics=[],
         generation_order=order,
     )
+
+@router.post("/specs/generate", response_model=DatasetSpec)
+def generate_specification_from_prompt(req: GenerateSpecRequest) -> DatasetSpec:
+    """Uses the configured local Ollama model to create a validated DatasetSpec."""
+    try:
+        return generate_dataset_spec(
+            req.prompt,
+            base_url=settings.ollama_base_url,
+            model=settings.default_model,
+            timeout_seconds=settings.schema_generation_timeout_seconds,
+        )
+    except AISchemaBuilderError as exc:
+        raise HTTPException(
+            status_code=exc.status_code,
+            detail={"code": exc.code, "message": exc.message},
+        ) from exc

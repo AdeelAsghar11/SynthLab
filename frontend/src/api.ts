@@ -38,6 +38,24 @@ export async function validateSpecification(spec: DatasetSpec): Promise<SpecVali
   return res.json();
 }
 
+export async function generateSpecification(prompt: string): Promise<DatasetSpec> {
+  const res = await fetch('/api/specs/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt }),
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    const detail = errorBody.detail;
+    const message = typeof detail === 'string'
+      ? detail
+      : detail?.message;
+    throw new Error(message || `AI Generation failed with status: ${res.status}`);
+  }
+  return res.json();
+}
+
+
 export async function submitJob(
   spec: DatasetSpec,
   isPreview: boolean = false,

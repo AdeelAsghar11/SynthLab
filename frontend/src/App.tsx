@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchHealth, fetchTemplates, fetchTemplate } from './api';
+import { fetchHealth, fetchTemplates, fetchTemplate, generateSpecification } from './api';
 import { HealthResponse, TemplateSummary, DatasetSpec } from './types';
 import { TemplatePicker } from './components/TemplatePicker';
 import { SpecEditor } from './components/SpecEditor';
@@ -23,6 +23,10 @@ export const App: React.FC = () => {
   const [activeSpec, setActiveSpec] = useState<DatasetSpec | null>(null);
   const [specLoading, setSpecLoading] = useState<boolean>(false);
   const [specError, setSpecError] = useState<string | null>(null);
+
+  // AI Builder State
+  const [aiPrompt, setAiPrompt] = useState<string>('');
+  const [aiGenerating, setAiGenerating] = useState<boolean>(false);
 
   const loadHealth = async () => {
     setHealthLoading(true);
@@ -65,6 +69,23 @@ export const App: React.FC = () => {
     } catch (err) {
       setSpecError(err instanceof Error ? err.message : `Failed to load template ${templateId}`);
     } finally {
+      setSpecLoading(false);
+    }
+  };
+
+  const handleAIGenerate = async () => {
+    if (!aiPrompt.trim()) return;
+    setAiGenerating(true);
+    setSpecError(null);
+    setSpecLoading(true);
+    try {
+      const newSpec = await generateSpecification(aiPrompt);
+      setActiveSpec(newSpec);
+      setSelectedTemplateId('custom_ai');
+    } catch (err) {
+      setSpecError(err instanceof Error ? err.message : 'AI Generation Failed');
+    } finally {
+      setAiGenerating(false);
       setSpecLoading(false);
     }
   };
@@ -199,6 +220,38 @@ export const App: React.FC = () => {
                 {templatesError}
               </div>
             )}
+
+            {/* AI Schema Builder Component */}
+            <div className="card-panel" style={{ marginTop: '1.5rem', border: '1px solid var(--border-glow)' }}>
+              <div className="card-title-bar" style={{ marginBottom: '0.5rem' }}>
+                <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Zap size={18} color="var(--accent-cyan)" /> AI Schema Builder
+                </h3>
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                Describe your use-case (e.g. 10k patient records with blood types) and let the local LLM generate the perfect schema.
+              </p>
+              <textarea
+                className="form-input"
+                placeholder="Type your use case here..."
+                rows={3}
+                value={aiPrompt}
+                onChange={e => setAiPrompt(e.target.value)}
+                style={{ resize: 'vertical' }}
+              />
+              <button
+                className="btn-primary"
+                style={{ width: '100%', marginTop: '1rem' }}
+                onClick={handleAIGenerate}
+                disabled={aiGenerating || !aiPrompt.trim()}
+              >
+                {aiGenerating ? (
+                  <><span className="status-indicator loading" style={{ width: 10, height: 10 }}></span> Generating...</>
+                ) : (
+                  'Generate Custom Schema'
+                )}
+              </button>
+            </div>
 
           </div>
 
