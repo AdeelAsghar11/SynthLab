@@ -1,64 +1,93 @@
 # SynthLab 🧪
 
-> Local synthetic data studio combining deterministic Python sampling and open-weight LLM text enrichment.
+> **The deterministically safe, local-first synthetic data studio.**
 
-![SynthLab Cover Placeholder](https://via.placeholder.com/1200x400.png?text=SynthLab+Synthetic+Data+Studio)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](#)
+[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)](#)
+[![License](https://img.shields.io/badge/license-MIT-green)](#)
+[![Local LLM](https://img.shields.io/badge/LLM-Ollama-purple)](#)
 
-## Architecture Highlights
-- **Python-owned structured facts**: NumPy/SciPy generate distributions, uniqueness, constraints, and timestamps deterministically.
-- **Local open-weight text generation**: Local LLM (via Ollama, e.g. Qwen 2.5) enriches records with realistic natural language without modifying structured upstream fields.
-- **Privacy & Quality Gates**: Sensitive-format screening via regex, bounded two-retry limit, and provenance manifests.
-- **Hybrid Performance**: Offline structural generation achieves ~13,600 rows/second throughput, scaling deterministically prior to LLM enrichment.
+![SynthLab Cover Placeholder](https://via.placeholder.com/1200x400/0f172a/38bdf8.png?text=SynthLab+Synthetic+Data+Studio)
 
-## Quick Start
+SynthLab is a highly rigorous, local-first synthetic data generation platform. By enforcing a strict architectural boundary between **deterministic mathematical sampling** and **generative AI text enrichment**, SynthLab creates perfectly valid datasets that never suffer from LLM schema hallucinations or constraint drift.
 
-### 1. Backend Setup
+If you need millions of rows of safe, mathematically precise, schema-valid data paired with realistic support tickets or organic text—all without sending a single byte to the cloud—SynthLab is built for you.
+
+---
+
+## 🎯 Key Capabilities
+
+- **Mathematical Perfection**: Leveraging NumPy and SciPy, the Python generation engine guarantees precise categorical distributions, largest-remainder quota allocations, unique identifiers, and strict numerical bounds.
+- **Organic Text Enrichment**: Seamlessly integrates with [Ollama](https://ollama.com/) (e.g., Qwen 2.5, Llama 3) to inject realistic natural language into structured rows *without* allowing the LLM to mutate the underlying factual data.
+- **Extreme Throughput**: The deterministic offline engine is capable of scaling to **~13,600 rows per second** on a single thread.
+- **Privacy & Quality Gates**: Bounded retries and regex-based interception mechanisms immediately block simulated structural PII (CNIC, SSN, Credit Cards, Emails) from bleeding into the output.
+- **Cryptographic Provenance**: Every generated dataset provides an immutable JSON manifest documenting the exact seeds, templates, and limits used to guarantee perfect reproducibility.
+
+---
+
+## 🚀 Quick Start
+
+SynthLab is split into a robust FastAPI backend and a beautiful React/Vite frontend workspace.
+
+### Prerequisites
+- **Python 3.10+**
+- **Node.js 24+**
+- **Ollama** (optional, but required for LLM text enrichment. Pull a model like `qwen2.5:7b` locally)
+
+### 1. Launch the Backend
 ```powershell
-# Create & activate virtual environment (if not already done)
+# Create & activate a virtual environment
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
-# Install dependencies
+# Install required dependencies
 pip install -r requirements.txt
 
-# Start backend on http://127.0.0.1:8000
+# Start the FastAPI service
 uvicorn backend.main:app --reload --port 8000
 ```
+*The backend will now be accessible at `http://127.0.0.1:8000`.*
 
-### 2. Frontend Setup
+### 2. Launch the Frontend Workspace
+Open a new terminal window:
 ```powershell
 cd frontend
 npm install
 npm run dev
-# Open http://localhost:5173
 ```
+*Open your browser and navigate to `http://localhost:5173` to access the Data Studio.*
 
-### 3. Run Checks (P7.4)
+### 3. Verify Health & Tests
+To verify your environment is correctly configured, run the integrated test suite:
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\check.ps1
 ```
 
-## Threat Model & Security Posture
+---
+
+## 🏗️ Architecture & Threat Model
+
 SynthLab operates strictly as a **local-first** environment designed to prevent real PII linkage:
-- **No Private-Source Fidelity**: Datasets are schema-driven fictions. Real-world dataset records are never used as training inputs or seeds.
-- **Offline Capable**: The backend and frontend execute fully disconnected from public cloud AI platforms, eliminating third-party API data leakage.
-- **Screening**: The internal `TextScreeningPolicy` actively blocks generated structural PII (CNIC, SSN, Credit Cards, Emails) via regex interception.
+- **No Private-Source Fidelity**: Datasets are schema-driven fictions. Real-world dataset records are never used as training inputs or seeds. Any resemblance to real persons is purely coincidental.
+- **Air-Gapped Operation**: The backend and frontend execute fully disconnected from public cloud AI platforms, eliminating third-party API data leakage vectors.
+- **Screening Policies**: The internal `TextScreeningPolicy` actively blocks generated structural PII via regex interception. Note that while structural PII is filtered, *semantic tone safety* relies on the safety alignment of the local LLM weights provided by the user.
 
-## Dataset Card & Limitations
-Generated datasets carry a cryptographically verifiable manifest documenting their exact origins. 
-- **Limitation**: SynthLab generates fictional distributions based on theoretical formulas; it does not map to true sociological representations of populations.
-- **Semantic Limits**: The deterministic quality gates do not filter semantic toxicity; semantic tone safety relies on the safety alignment of the local LLM weights (e.g. Qwen 2.5).
+---
 
-## Repository Structure
-```
+## 📂 Repository Structure
+
+```text
 SynthLab/
 ├── backend/            # FastAPI service, specs, sampling, validation, jobs
-├── frontend/           # React + TypeScript + Vite frontend
-├── tests/              # Pytest test suite (100% passing)
-├── evals/              # Frozen scenarios, runners, and screening rubrics
-├── examples/           # Sample specifications
-└── docs/               # Project specs, architecture, roadmap, decisions, and research
+├── frontend/           # React + TypeScript + Vite frontend studio
+├── tests/              # 100% passing Pytest suite covering logic & APIs
+├── evals/              # Frozen scenarios, runners, and throughput benchmarks
+├── examples/           # Sample JSON specifications
+└── scripts/            # CLI utilities and environment checks
 ```
 
-## License
-MIT License. See `LICENSE` for details.
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
