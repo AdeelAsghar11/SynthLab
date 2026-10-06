@@ -14,7 +14,7 @@ Last updated: 2026-10-06 (Asia/Karachi).
 - Application code: All 35 backend tests and frontend production build pass cleanly.
 - Environment: Windows, Python 3.10.11, Node v24.19.0, npm 11.17.0, Git 2.54.0.windows.1.
 - Hardware: 16 GB RAM, NVIDIA GeForce GTX 1660 SUPER (6 GB VRAM). Local Ollama service running with models (qwen2.5:7b, qwen2.5-coder:7b, llama3.2:1b, deepseek-r1:1.5b).
-- Active implementation milestone: P5.2 (Field editor and supported generator controls).
+- Active implementation milestone: P5.3 (Probability/constraint controls) and P5.4 (Preview submission).
 - Remote repository: `git@github.com:AdeelAsghar11/SynthLab.git` (branch `main` tracking `origin/main`, synchronized).
 - Committer identity: Strictly configured as `AdeelAsghar11 <adeelyt157@gmail.com>`.
 
@@ -22,13 +22,12 @@ These files belong to SynthLab. They must not be applied to the unrelated AutoRe
 
 ## Exact next action
 
-Implement P5.2 (Field editor and supported generator controls):
-1. Build `FieldEditor` and generator property forms:
-   - Edit row count, seed, and generation mode (random vs fixed proportions).
-   - Add/remove/reorder fields and edit type, null probability, and generator configuration.
-   - Live spec validation via `POST /api/specs/validate` displaying server diagnostics and topological generation order.
-2. Verify with `npm run build` and backend test suite.
-3. Commit and push P5.2 milestone.
+Implement P5.3 and P5.4 (Preview submission and constraints):
+1. Build `PreviewGenerator` component in the `preview` tab to submit the `activeSpec` to `/api/jobs` for a preview generation (20 rows).
+2. Wire up job polling and results display (JSON/table format).
+3. Handle sensitive output escaping and display errors clearly.
+4. Verify with `npm run build` and backend test suite.
+5. Commit and push milestone.
 
 ## Milestone status
 
@@ -40,7 +39,7 @@ Implement P5.2 (Field editor and supported generator controls):
 | P2 Statistical generation | Completed | P2.1-P2.6 samplers, GenerationEngine, largest-remainder quota, dataset validator; 24 tests passed |
 | P3 Local text and screening | Completed | P3.1-P3.4 adapters (Fake, Template, Ollama), screening policy, enricher retry logic; 30 tests passed |
 | P4 Jobs, storage, export | Completed | P4.1-P4.5 SQLite jobs, background execution, cancellation, export writers, 6 API routes; 35 tests passed |
-| P5 Frontend | In progress | P5.1 workspace shell & template picker completed; advancing to P5.2 |
+| P5 Frontend | In progress | P5.1-P5.2 workspace shell & field editor completed; advancing to P5.3/P5.4 |
 | P6 Evaluation | Not started | No implementation evidence |
 | P7 Release | Not started | No implementation evidence |
 
@@ -67,6 +66,22 @@ Implement P5.2 (Field editor and supported generator controls):
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P5.2: Field editor and generator property forms
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `frontend/src/components/SpecEditor.tsx`: Created new component managing `DatasetSpec` properties (row count, seed, generation mode), field list (add, remove, edit types/generators/nullable), and debounced live validation to `/api/specs/validate`.
+  - `frontend/src/App.tsx`: Integrated `SpecEditor` replacing the static schema inspector display for `activeSpec`.
+- Why this change was necessary: Fulfills Milestone P5.2 completion gate to provide a typed configuration editor with live diagnostic feedback from the server validation logic.
+- Verification command(s), outcome, and relevant evidence:
+  - `.\.venv\Scripts\pytest tests` -> All 35 tests passed.
+  - `cd frontend && npm run build` -> Compiled successfully in 5.96s.
+- Decisions/research added or superseded: None.
+- Known limitation or blocker: Detailed specialized inputs per generator kind (e.g. categorical choices vs uniform min/max) are handled by a raw JSON editor for now; can be enhanced in P5.3 if needed.
+- Git checkpoint: Planned commit: `feat(frontend): spec editor with live validation (P5.2)`.
+- Exact next action: P5.3 and P5.4 (Preview submission).
 
 ### P5.1: Interactive workspace shell, template picker, and field schema inspector
 

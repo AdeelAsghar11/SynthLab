@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchHealth, fetchTemplates, fetchTemplate } from './api';
 import { HealthResponse, TemplateSummary, DatasetSpec } from './types';
 import { TemplatePicker } from './components/TemplatePicker';
+import { SpecEditor } from './components/SpecEditor';
 
 export const App: React.FC = () => {
   // Runtime Health State
@@ -289,104 +290,7 @@ export const App: React.FC = () => {
                 <p style={{ color: 'var(--accent-rose)' }}>Error loading specification: {specError}</p>
               </div>
             ) : activeSpec ? (
-              <>
-                {/* Specification Overview Card */}
-                <div className="card-panel" style={{ marginBottom: '1.25rem' }} id="spec-overview-card">
-                  <div className="card-title-bar">
-                    <div>
-                      <h3 className="card-title" id="spec-dataset-name">{activeSpec.name}</h3>
-                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                        Envelope v{activeSpec.spec_version} • Deterministic Seed: {activeSpec.seed}
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <span className="tag tag-emerald">
-                        {activeSpec.generation_mode === 'fixed_proportions' ? 'Fixed Proportions' : 'Random Sampling'}
-                      </span>
-                      <span className="tag tag-cyan">{activeSpec.row_count} Rows</span>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.85rem', marginTop: '1rem' }}>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>GENERATION MODE</div>
-                      <div style={{ fontSize: '0.88rem', fontWeight: 600, marginTop: '0.2rem' }}>{activeSpec.generation_mode}</div>
-                    </div>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>ROW COUNT</div>
-                      <div style={{ fontSize: '0.88rem', fontWeight: 600, marginTop: '0.2rem' }}>{activeSpec.row_count} rows</div>
-                    </div>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>RNG SEED</div>
-                      <div style={{ fontSize: '0.88rem', fontWeight: 600, marginTop: '0.2rem' }}>{activeSpec.seed}</div>
-                    </div>
-                    <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>REGISTERED FIELDS</div>
-                      <div style={{ fontSize: '0.88rem', fontWeight: 600, marginTop: '0.2rem' }}>{activeSpec.fields.length} columns</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Fields Schema Inspector */}
-                <div className="card-panel" id="fields-inspector-card">
-                  <div className="card-title-bar">
-                    <h3 className="card-title" id="fields-inspector-title">
-                      Fields Schema Inspector ({activeSpec.fields.length})
-                    </h3>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      Strict typed generators with cycle prevention
-                    </span>
-                  </div>
-
-                  <div className="fields-list" id="fields-list">
-                    {activeSpec.fields.map((field) => (
-                      <div key={field.name} className="field-item" id={`field-row-${field.name}`}>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                            <strong style={{ fontSize: '0.92rem' }}>{field.name}</strong>
-                            <span className={`tag ${
-                              field.type === 'category' ? 'tag-indigo' :
-                              field.type === 'decimal' || field.type === 'integer' ? 'tag-emerald' :
-                              field.type === 'datetime' ? 'tag-amber' :
-                              field.type === 'text' ? 'tag-cyan' : 'tag'
-                            }`}>
-                              {field.type}
-                            </span>
-                            {field.nullable && (
-                              <span className="tag" style={{ background: 'rgba(244, 63, 94, 0.1)', color: '#fda4af' }}>
-                                null: {(field.null_probability * 100).toFixed(0)}%
-                              </span>
-                            )}
-                          </div>
-                          {field.description && (
-                            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                              {field.description}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="field-meta-tags">
-                          <span className="tag" style={{ fontFamily: 'var(--font-mono)' }}>
-                            {field.generator.kind}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Text options & screening notes */}
-                  {activeSpec.text_options && (
-                    <div style={{ marginTop: '1.25rem', padding: '0.85rem', background: 'rgba(56, 189, 248, 0.05)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(56, 189, 248, 0.15)' }}>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--accent-cyan)', marginBottom: '0.25rem' }}>
-                        🛡️ Text Enrichment & Privacy Gate:
-                      </div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                        Template: <code style={{ color: 'var(--text-primary)' }}>{activeSpec.text_options.template_version}</code> • Max Length: {activeSpec.text_options.max_length} chars • Timeout: {activeSpec.text_options.timeout_seconds}s • Presidio + CNIC screening active (2 retry max)
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
+              <SpecEditor initialSpec={activeSpec} onSpecChange={setActiveSpec} />
             ) : (
               <div className="card-panel">
                 <p style={{ color: 'var(--text-muted)' }}>Select a template on the left to inspect the schema.</p>
