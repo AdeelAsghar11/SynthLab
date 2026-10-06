@@ -22,8 +22,8 @@ These files belong to SynthLab. They must not be applied to the unrelated AutoRe
 
 ## Exact next action
 
-Implement Phase P7 (Release):
-1. Prepare repository for final presentation/release by polishing documentation.
+Implement Phase 8 (Deferred Backlog):
+1. Wait for further business direction on distributed SQLite scaling, CI/CD pipeline automation, or React testing.
 
 ## Milestone status
 
@@ -37,7 +37,7 @@ Implement Phase P7 (Release):
 | P4 Jobs, storage, export | Completed | P4.1-P4.5 SQLite jobs, background execution, cancellation, export writers, 6 API routes; 35 tests passed |
 | P5 Frontend | Completed | Workspace shell, field editor, preview generator, and quality reports completed. |
 | P6 Evaluation | Completed | P6.1-P6.4 frozen scenarios, throughput, screening rubrics, and final report completed |
-| P7 Release | Not started | No implementation evidence |
+| P7 Release | Completed | README updated, check.ps1 verified, and evaluation documentation finalized. |
 
 ## Open facts to establish
 
@@ -62,6 +62,21 @@ Implement Phase P7 (Release):
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P7: Release and portfolio
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `README.md`: Updated to include specific structural documentation: Architecture Highlights, Threat Model & Security Posture (explicitly rejecting true private-source linkage), Dataset Card limitations, and MIT License pointers.
+  - `scripts/check.ps1`: Executed to ensure 100% test passing, clean types, and no egress leaks.
+- Why this change was necessary: Completes Phase 7 (Release) by properly preparing the repository for hand-off and ensuring all claims align with the established evaluation limits.
+- Verification command(s), outcome, and relevant evidence:
+  - `powershell -ExecutionPolicy Bypass -File scripts\check.ps1` -> Completed cleanly, confirming 35/35 passing tests and production-ready frontend build.
+- Decisions/research added or superseded: The repository is complete. No public hosting infrastructure implemented per roadmap P7 limitations.
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `chore: P7 release documentation and final checks`.
+- Exact next action: Deferred Backlog.
 
 ### P6.4: Final model/default limit decision and report
 
