@@ -14,7 +14,7 @@ Last updated: 2026-10-06 (Asia/Karachi).
 - Application code: All 35 backend tests and frontend production build pass cleanly.
 - Environment: Windows, Python 3.10.11, Node v24.19.0, npm 11.17.0, Git 2.54.0.windows.1.
 - Hardware: 16 GB RAM, NVIDIA GeForce GTX 1660 SUPER (6 GB VRAM). Local Ollama service running with models (qwen2.5:7b, qwen2.5-coder:7b, llama3.2:1b, deepseek-r1:1.5b).
-- Active implementation milestone: P5.1 - P5.6 (Interactive frontend workspace).
+- Active implementation milestone: P5.2 (Field editor and supported generator controls).
 - Remote repository: `git@github.com:AdeelAsghar11/SynthLab.git` (branch `main` tracking `origin/main`, synchronized).
 - Committer identity: Strictly configured as `AdeelAsghar11 <adeelyt157@gmail.com>`.
 
@@ -22,14 +22,13 @@ These files belong to SynthLab. They must not be applied to the unrelated AutoRe
 
 ## Exact next action
 
-Implement Phase P5 (Frontend workspace):
-1. Build `frontend/src/` components:
-   - Template selector & specification configurator (`TemplatePicker`, `SpecEditor`).
-   - Generation controls (row count, seed, mode: random vs fixed proportions, local Ollama toggle).
-   - Preview & Job monitor (20-row preview table, progress bar, cancel button).
-   - Validation report cards & distribution chart views.
-   - Download controls for formula-safe CSV and JSON datasets, report, and manifest.
-2. Verify full frontend build with `npm run build` and test user journey.
+Implement P5.2 (Field editor and supported generator controls):
+1. Build `FieldEditor` and generator property forms:
+   - Edit row count, seed, and generation mode (random vs fixed proportions).
+   - Add/remove/reorder fields and edit type, null probability, and generator configuration.
+   - Live spec validation via `POST /api/specs/validate` displaying server diagnostics and topological generation order.
+2. Verify with `npm run build` and backend test suite.
+3. Commit and push P5.2 milestone.
 
 ## Milestone status
 
@@ -41,7 +40,7 @@ Implement Phase P5 (Frontend workspace):
 | P2 Statistical generation | Completed | P2.1-P2.6 samplers, GenerationEngine, largest-remainder quota, dataset validator; 24 tests passed |
 | P3 Local text and screening | Completed | P3.1-P3.4 adapters (Fake, Template, Ollama), screening policy, enricher retry logic; 30 tests passed |
 | P4 Jobs, storage, export | Completed | P4.1-P4.5 SQLite jobs, background execution, cancellation, export writers, 6 API routes; 35 tests passed |
-| P5 Frontend | In progress | Advancing to P5.1-P5.6 (interactive UI workspace) |
+| P5 Frontend | In progress | P5.1 workspace shell & template picker completed; advancing to P5.2 |
 | P6 Evaluation | Not started | No implementation evidence |
 | P7 Release | Not started | No implementation evidence |
 
@@ -69,10 +68,28 @@ Implement Phase P5 (Frontend workspace):
 
 ## Work log
 
-### DOC-002: Reorganize documentation files into docs/ directory
+### P5.1: Interactive workspace shell, template picker, and field schema inspector
 
 - Date: 2026-10-06.
 - Status: verified and committed.
+- What changed and affected paths:
+  - `frontend/src/types.ts`: Defined TypeScript domain models for `TemplateSummary`, `FieldSpec`, `DatasetSpec`, `SpecValidationResponse`, `JobStatusResponse`, `ColumnSummary`, and `DatasetValidationReport`.
+  - `frontend/src/api.ts`: Implemented typed HTTP client functions for `/api/health`, `/api/templates`, `/api/templates/{id}`, `/api/specs/validate`, `/api/jobs`, `/api/jobs/{id}/cancel`, preview, report, and manifest.
+  - `frontend/src/components/TemplatePicker.tsx`: Built reusable interactive template selector displaying approved domain templates, field counts, row counts, and loading states.
+  - `frontend/src/App.tsx`: Integrated multi-tab workspace shell ("Specification & Schema", "Generation & Preview", "Quality & Manifest"), template loader, active specification overview, typed field schema inspector, text enrichment options, and system health badges.
+  - `frontend/src/index.css`: Added responsive styles for workspace tabs, panels, field tags, distribution bars, and buttons.
+- Why this change was necessary: Fulfills Milestone P5.1 completion gate to provide a readable, responsive workspace shell and template selection interface connected to FastAPI backend.
+- Verification command(s), outcome, and relevant evidence:
+  - `powershell -ExecutionPolicy Bypass -File scripts\check.ps1` -> 35 backend tests passed; `npm run build` compiled 33 modules into production bundle in 5.84s.
+- Decisions/research added or superseded: None.
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `feat(frontend): workspace shell, template picker, and schema inspector (P5.1)`.
+- Exact next action: P5.2 (Field editor and supported generator controls).
+
+### DOC-002: Reorganize documentation files into docs/ directory
+
+- Date: 2026-10-06.
+- Status: verified and pushed.
 - What changed and affected paths:
   - Moved context markdown files to `docs/`: `docs/ARCHITECTURE.MD`, `docs/DECISIONS.MD`, `docs/PROGRESS.MD`, `docs/PROJECT.MD`, `docs/RESEARCH.MD`, `docs/ROADMAP.MD`.
   - Retained `AGENTS.MD` and `README.md` at root per repository requirements.
@@ -83,7 +100,7 @@ Implement Phase P5 (Frontend workspace):
   - `npm run build` -> frontend build passed.
 - Decisions/research added or superseded: None.
 - Known limitation or blocker: None.
-- Git checkpoint: Planned commit: `docs(structure): move documentation Markdown files to docs/ and retain agents.md in root`.
+- Git checkpoint: Commit `935c5a8`, pushed to `origin/main`.
 - Exact next action: Phase P5 (Interactive frontend workspace).
 
 ### P4: SQLite persistence, background jobs, cancellation, and export writers (P4.1 - P4.5)

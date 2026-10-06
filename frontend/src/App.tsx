@@ -1,30 +1,73 @@
 import React, { useEffect, useState } from 'react';
-import { fetchHealth } from './api';
-import { HealthResponse } from './types';
+import { fetchHealth, fetchTemplates, fetchTemplate } from './api';
+import { HealthResponse, TemplateSummary, DatasetSpec } from './types';
+import { TemplatePicker } from './components/TemplatePicker';
 
 export const App: React.FC = () => {
+  // Runtime Health State
   const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [healthLoading, setHealthLoading] = useState<boolean>(true);
+  const [healthError, setHealthError] = useState<string | null>(null);
   const [lastChecked, setLastChecked] = useState<string>('');
 
+  // Workspace Navigation & Templates State
+  const [activeTab, setActiveTab] = useState<'spec' | 'preview' | 'quality'>('spec');
+  const [templates, setTemplates] = useState<TemplateSummary[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState<boolean>(true);
+  const [templatesError, setTemplatesError] = useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [activeSpec, setActiveSpec] = useState<DatasetSpec | null>(null);
+  const [specLoading, setSpecLoading] = useState<boolean>(false);
+  const [specError, setSpecError] = useState<string | null>(null);
+
   const loadHealth = async () => {
-    setLoading(true);
-    setError(null);
+    setHealthLoading(true);
+    setHealthError(null);
     try {
       const data = await fetchHealth();
       setHealth(data);
       setLastChecked(new Date().toLocaleTimeString());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reach API server');
+      setHealthError(err instanceof Error ? err.message : 'Failed to reach API server');
       setLastChecked(new Date().toLocaleTimeString());
     } finally {
-      setLoading(false);
+      setHealthLoading(false);
+    }
+  };
+
+  const loadTemplates = async () => {
+    setTemplatesLoading(true);
+    setTemplatesError(null);
+    try {
+      const list = await fetchTemplates();
+      setTemplates(list);
+      if (list.length > 0 && !selectedTemplateId) {
+        handleSelectTemplate(list[0].id);
+      }
+    } catch (err) {
+      setTemplatesError(err instanceof Error ? err.message : 'Failed to load templates');
+    } finally {
+      setTemplatesLoading(false);
+    }
+  };
+
+  const handleSelectTemplate = async (templateId: string) => {
+    setSelectedTemplateId(templateId);
+    setSpecLoading(true);
+    setSpecError(null);
+    try {
+      const spec = await fetchTemplate(templateId);
+      setActiveSpec(spec);
+    } catch (err) {
+      setSpecError(err instanceof Error ? err.message : `Failed to load template ${templateId}`);
+    } finally {
+      setSpecLoading(false);
     }
   };
 
   useEffect(() => {
     loadHealth();
+    loadTemplates();
   }, []);
 
   return (
@@ -62,7 +105,7 @@ export const App: React.FC = () => {
           <h2 className="panel-heading" id="health-monitor-heading">
             <span
               className={`status-indicator ${
-                loading ? 'loading' : error ? 'offline' : 'online'
+                healthLoading ? 'loading' : healthError ? 'offline' : 'online'
               }`}
               id="system-status-indicator"
             />
@@ -79,14 +122,14 @@ export const App: React.FC = () => {
               id="refresh-health-button"
               className="refresh-button"
               onClick={loadHealth}
-              disabled={loading}
+              disabled={healthLoading}
             >
-              {loading ? 'Checking...' : '↻ Refresh Status'}
+              {healthLoading ? 'Checking...' : '↻ Refresh Status'}
             </button>
           </div>
         </div>
 
-        {error ? (
+        {healthError ? (
           <div
             id="health-error-banner"
             style={{
@@ -98,7 +141,7 @@ export const App: React.FC = () => {
               fontSize: '0.9rem',
             }}
           >
-            <strong>Backend Connection Notice:</strong> {error}. Ensure FastAPI is running on port 8000.
+            <strong>Backend Connection Notice:</strong> {healthError}. Ensure FastAPI is running on port 8000.
           </div>
         ) : (
           <div className="health-grid" id="health-status-grid">
@@ -170,8 +213,219 @@ export const App: React.FC = () => {
         )}
       </section>
 
+      {/* Workspace Tabs Navigation */}
+      <div className="workspace-tabs" id="workspace-tabs">
+        <button
+          id="tab-spec-btn"
+          className={`workspace-tab ${activeTab === 'spec' ? 'active' : ''}`}
+          onClick={() => setActiveTab('spec')}
+        >
+          📋 1. Specification & Schema
+        </button>
+        <button
+          id="tab-preview-btn"
+          className={`workspace-tab ${activeTab === 'preview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('preview')}
+        >
+          ⚡ 2. Generation & Preview
+        </button>
+        <button
+          id="tab-quality-btn"
+          className={`workspace-tab ${activeTab === 'quality' ? 'active' : ''}`}
+          onClick={() => setActiveTab('quality')}
+        >
+          🛡️ 3. Quality & Manifest
+        </button>
+      </div>
+
+      {/* Tab 1: Specification & Schema (P5.1 Milestone) */}
+      {activeTab === 'spec' && (
+        <div className="workspace-grid" id="spec-workspace-grid">
+          {/* Left Column: Template Picker & Boundaries Note */}
+          <div>
+            <TemplatePicker
+              templates={templates}
+              selectedTemplateId={selectedTemplateId}
+              onSelectTemplate={handleSelectTemplate}
+              loading={templatesLoading}
+            />
+
+            {templatesError && (
+              <div
+                style={{
+                  padding: '0.85rem',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'rgba(244, 63, 94, 0.1)',
+                  border: '1px solid rgba(244, 63, 94, 0.3)',
+                  color: 'var(--accent-rose)',
+                  fontSize: '0.85rem',
+                  marginTop: '0.75rem',
+                }}
+              >
+                {templatesError}
+              </div>
+            )}
+
+            <div className="card-panel" style={{ marginTop: '1.25rem' }}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                🔒 Separation of Boundaries
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                <strong>Python</strong> deterministically generates distributions, category quotas, IDs, and numeric rules.
+                <br /><br />
+                <strong>Local LLM (via Ollama)</strong> strictly enriches approved text fields without ever altering upstream structured facts.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column: Active Specification & Fields Inspector */}
+          <div>
+            {specLoading ? (
+              <div className="card-panel" style={{ textAlign: 'center', padding: '3rem' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>Loading specification schema...</p>
+              </div>
+            ) : specError ? (
+              <div className="card-panel">
+                <p style={{ color: 'var(--accent-rose)' }}>Error loading specification: {specError}</p>
+              </div>
+            ) : activeSpec ? (
+              <>
+                {/* Specification Overview Card */}
+                <div className="card-panel" style={{ marginBottom: '1.25rem' }} id="spec-overview-card">
+                  <div className="card-title-bar">
+                    <div>
+                      <h3 className="card-title" id="spec-dataset-name">{activeSpec.name}</h3>
+                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+                        Envelope v{activeSpec.spec_version} • Deterministic Seed: {activeSpec.seed}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <span className="tag tag-emerald">
+                        {activeSpec.generation_mode === 'fixed_proportions' ? 'Fixed Proportions' : 'Random Sampling'}
+                      </span>
+                      <span className="tag tag-cyan">{activeSpec.row_count} Rows</span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.85rem', marginTop: '1rem' }}>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>GENERATION MODE</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 600, marginTop: '0.2rem' }}>{activeSpec.generation_mode}</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>ROW COUNT</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 600, marginTop: '0.2rem' }}>{activeSpec.row_count} rows</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>RNG SEED</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 600, marginTop: '0.2rem' }}>{activeSpec.seed}</div>
+                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>REGISTERED FIELDS</div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 600, marginTop: '0.2rem' }}>{activeSpec.fields.length} columns</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fields Schema Inspector */}
+                <div className="card-panel" id="fields-inspector-card">
+                  <div className="card-title-bar">
+                    <h3 className="card-title" id="fields-inspector-title">
+                      Fields Schema Inspector ({activeSpec.fields.length})
+                    </h3>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      Strict typed generators with cycle prevention
+                    </span>
+                  </div>
+
+                  <div className="fields-list" id="fields-list">
+                    {activeSpec.fields.map((field) => (
+                      <div key={field.name} className="field-item" id={`field-row-${field.name}`}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                            <strong style={{ fontSize: '0.92rem' }}>{field.name}</strong>
+                            <span className={`tag ${
+                              field.type === 'category' ? 'tag-indigo' :
+                              field.type === 'decimal' || field.type === 'integer' ? 'tag-emerald' :
+                              field.type === 'datetime' ? 'tag-amber' :
+                              field.type === 'text' ? 'tag-cyan' : 'tag'
+                            }`}>
+                              {field.type}
+                            </span>
+                            {field.nullable && (
+                              <span className="tag" style={{ background: 'rgba(244, 63, 94, 0.1)', color: '#fda4af' }}>
+                                null: {(field.null_probability * 100).toFixed(0)}%
+                              </span>
+                            )}
+                          </div>
+                          {field.description && (
+                            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                              {field.description}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="field-meta-tags">
+                          <span className="tag" style={{ fontFamily: 'var(--font-mono)' }}>
+                            {field.generator.kind}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Text options & screening notes */}
+                  {activeSpec.text_options && (
+                    <div style={{ marginTop: '1.25rem', padding: '0.85rem', background: 'rgba(56, 189, 248, 0.05)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(56, 189, 248, 0.15)' }}>
+                      <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--accent-cyan)', marginBottom: '0.25rem' }}>
+                        🛡️ Text Enrichment & Privacy Gate:
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                        Template: <code style={{ color: 'var(--text-primary)' }}>{activeSpec.text_options.template_version}</code> • Max Length: {activeSpec.text_options.max_length} chars • Timeout: {activeSpec.text_options.timeout_seconds}s • Presidio + CNIC screening active (2 retry max)
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="card-panel">
+                <p style={{ color: 'var(--text-muted)' }}>Select a template on the left to inspect the schema.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Tab 2: Preview & Generation Placeholder (Next P5.4 milestone) */}
+      {activeTab === 'preview' && (
+        <div className="card-panel" style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚡</div>
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Interactive Generation & 20-Row Preview</h3>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 1.5rem auto', fontSize: '0.9rem' }}>
+            Ready for Milestone P5.4: Submit preview generation jobs with simulated or Ollama LLM text enrichment, track progress bar in real time, and inspect sanitized rows.
+          </p>
+          <button className="btn-secondary" onClick={() => setActiveTab('spec')}>
+            ← Back to Specification
+          </button>
+        </div>
+      )}
+
+      {/* Tab 3: Quality Reports & Manifest Placeholder (Next P5.6 milestone) */}
+      {activeTab === 'quality' && (
+        <div className="card-panel" style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🛡️</div>
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Data Quality Reports & Export Manifests</h3>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 1.5rem auto', fontSize: '0.9rem' }}>
+            Ready for Milestone P5.6: Category distribution checks, numerical range statistics, formula-safe CSV & JSON dataset downloads, and provenance manifests.
+          </p>
+          <button className="btn-secondary" onClick={() => setActiveTab('spec')}>
+            ← Back to Specification
+          </button>
+        </div>
+      )}
+
       {/* Core Architectural Pillars */}
-      <h3 className="section-title">Core Engine Architecture</h3>
+      <h3 className="section-title" style={{ marginTop: '2.5rem' }}>Core Engine Architecture</h3>
       <div className="features-grid">
         <div className="feature-card" id="feature-card-sampler">
           <div
@@ -233,21 +487,13 @@ export const App: React.FC = () => {
         </div>
 
         <div className="roadmap-steps">
-          <span className="step-badge done" title="P0.1: Repo & Environment Facts">
-            ✓ P0.1
-          </span>
-          <span className="step-badge active" title="P0.2: Minimal Runnable Scaffold">
-            ● P0.2 Active
-          </span>
-          <span className="step-badge next" title="P1.1: Specification Envelope">
-            ○ P1.1 Next
-          </span>
-          <span className="step-badge next" title="P2: Statistical Generation">
-            ○ P2
-          </span>
-          <span className="step-badge next" title="P3: Text & Screening">
-            ○ P3
-          </span>
+          <span className="step-badge done" title="P0: Scaffolding">✓ P0</span>
+          <span className="step-badge done" title="P1: Specification Contracts">✓ P1</span>
+          <span className="step-badge done" title="P2: Statistical Generation">✓ P2</span>
+          <span className="step-badge done" title="P3: Text & Screening">✓ P3</span>
+          <span className="step-badge done" title="P4: Jobs & Storage">✓ P4</span>
+          <span className="step-badge active" title="P5.1: Workspace Shell & Templates">● P5.1 Active</span>
+          <span className="step-badge next" title="P5.2-P5.6: Interactive Controls">○ P5.2+</span>
         </div>
       </div>
     </div>
