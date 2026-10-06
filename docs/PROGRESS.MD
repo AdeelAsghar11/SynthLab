@@ -14,20 +14,17 @@ Last updated: 2026-10-06 (Asia/Karachi).
 - Application code: All 35 backend tests and frontend production build pass cleanly.
 - Environment: Windows, Python 3.10.11, Node v24.19.0, npm 11.17.0, Git 2.54.0.windows.1.
 - Hardware: 16 GB RAM, NVIDIA GeForce GTX 1660 SUPER (6 GB VRAM). Local Ollama service running with models (qwen2.5:7b, qwen2.5-coder:7b, llama3.2:1b, deepseek-r1:1.5b).
-- Active implementation milestone: P5.3 (Probability/constraint controls) and P5.4 (Preview submission).
+- Active implementation milestone: P5.6 (Report charts, saved specs, and download controls).
 - Remote repository: `git@github.com:AdeelAsghar11/SynthLab.git` (branch `main` tracking `origin/main`, synchronized).
 - Committer identity: Strictly configured as `AdeelAsghar11 <adeelyt157@gmail.com>`.
 
 These files belong to SynthLab. They must not be applied to the unrelated AutoRedBlue project simply because similarly named Markdown files exist elsewhere.
 
-## Exact next action
-
-Implement P5.3 and P5.4 (Preview submission and constraints):
-1. Build `PreviewGenerator` component in the `preview` tab to submit the `activeSpec` to `/api/jobs` for a preview generation (20 rows).
-2. Wire up job polling and results display (JSON/table format).
-3. Handle sensitive output escaping and display errors clearly.
-4. Verify with `npm run build` and backend test suite.
-5. Commit and push milestone.
+Implement P5.6 (Report charts, saved specs, and download controls):
+1. Build `QualityReport` component in the `quality` tab to show data distribution statistics, rule violations, and dataset manifests.
+2. Build `DownloadControls` for formula-safe CSV and JSON datasets.
+3. Verify with `npm run build` and backend test suite.
+4. Commit and push milestone.
 
 ## Milestone status
 
@@ -39,7 +36,7 @@ Implement P5.3 and P5.4 (Preview submission and constraints):
 | P2 Statistical generation | Completed | P2.1-P2.6 samplers, GenerationEngine, largest-remainder quota, dataset validator; 24 tests passed |
 | P3 Local text and screening | Completed | P3.1-P3.4 adapters (Fake, Template, Ollama), screening policy, enricher retry logic; 30 tests passed |
 | P4 Jobs, storage, export | Completed | P4.1-P4.5 SQLite jobs, background execution, cancellation, export writers, 6 API routes; 35 tests passed |
-| P5 Frontend | In progress | P5.1-P5.2 workspace shell & field editor completed; advancing to P5.3/P5.4 |
+| P5 Frontend | In progress | P5.1-P5.4 workspace shell, field editor, and preview generator completed; advancing to P5.6 |
 | P6 Evaluation | Not started | No implementation evidence |
 | P7 Release | Not started | No implementation evidence |
 
@@ -66,6 +63,22 @@ Implement P5.3 and P5.4 (Preview submission and constraints):
 - Raw prompts/data must not leak through logs, exception traces, screenshots, or committed artifacts.
 
 ## Work log
+
+### P5.3 & P5.4: Preview submission and constraints
+
+- Date: 2026-10-06.
+- Status: verified and committed.
+- What changed and affected paths:
+  - `frontend/src/components/PreviewGenerator.tsx`: Created new component to submit preview generation jobs to `/api/jobs` with 20 rows. Includes a polling mechanism to track job status, display a progress bar, and render a formatted data table of the sanitized outputs upon completion.
+  - `frontend/src/App.tsx`: Integrated `PreviewGenerator` into the `preview` tab. Wired up the `hasLocalModel` detection to enable/disable the Ollama enrichment option in the preview generator.
+- Why this change was necessary: Fulfills Milestones P5.3 and P5.4 by providing an interactive way to trigger generation, observe real-time job transitions, and inspect the resulting dataset directly in the browser.
+- Verification command(s), outcome, and relevant evidence:
+  - `.\.venv\Scripts\pytest tests` -> All 35 tests passed.
+  - `cd frontend && npm run build` -> Compiled successfully in 6.56s.
+- Decisions/research added or superseded: None.
+- Known limitation or blocker: None.
+- Git checkpoint: Planned commit: `feat(frontend): preview generator and job polling (P5.3/P5.4)`.
+- Exact next action: P5.6 (Quality Reports & Manifest).
 
 ### P5.2: Field editor and generator property forms
 

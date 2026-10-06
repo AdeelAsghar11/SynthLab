@@ -3,6 +3,7 @@ import { fetchHealth, fetchTemplates, fetchTemplate } from './api';
 import { HealthResponse, TemplateSummary, DatasetSpec } from './types';
 import { TemplatePicker } from './components/TemplatePicker';
 import { SpecEditor } from './components/SpecEditor';
+import { PreviewGenerator } from './components/PreviewGenerator';
 
 export const App: React.FC = () => {
   // Runtime Health State
@@ -300,16 +301,18 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 2: Preview & Generation Placeholder (Next P5.4 milestone) */}
-      {activeTab === 'preview' && (
+      {/* Tab 2: Preview & Generation (P5.4) */}
+      {activeTab === 'preview' && activeSpec ? (
+        <PreviewGenerator spec={activeSpec} hasLocalModel={health?.inference.status === 'connected'} />
+      ) : activeTab === 'preview' && (
         <div className="card-panel" style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚡</div>
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Interactive Generation & 20-Row Preview</h3>
+          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚠️</div>
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No Specification Selected</h3>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 1.5rem auto', fontSize: '0.9rem' }}>
-            Ready for Milestone P5.4: Submit preview generation jobs with simulated or Ollama LLM text enrichment, track progress bar in real time, and inspect sanitized rows.
+            Please select a template and configure the dataset specification first.
           </p>
           <button className="btn-secondary" onClick={() => setActiveTab('spec')}>
-            ← Back to Specification
+            ← Go to Specification
           </button>
         </div>
       )}
