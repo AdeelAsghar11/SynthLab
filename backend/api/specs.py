@@ -1,6 +1,13 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 from backend.config import settings
+from backend.policies.schema_policy import (
+    OUTPUT_REJECTION_MESSAGE,
+    PROMPT_REJECTION_MESSAGE,
+    SPEC_REJECTION_MESSAGE,
+    screen_dataset_spec,
+    screen_schema_prompt,
+)
 from backend.specs.ai_builder import AISchemaBuilderError, generate_dataset_spec
 from backend.specs.models import DatasetSpec
 from backend.specs.templates import get_default_support_ticket_spec
@@ -55,6 +62,21 @@ def get_template(template_id: str) -> DatasetSpec:
 @router.post("/specs/validate", response_model=SpecValidationResponse)
 def validate_specification(spec: DatasetSpec) -> SpecValidationResponse:
     """Validates specification syntax, field dependencies, and constraint contracts."""
+    policy_result = screen_dataset_spec(spec)
+    if not policy_result.is_safe:
+        return SpecValidationResponse(
+            valid=False,
+            diagnostics=[
+                DiagnosticItem(
+                    code="PROHIBITED_SCHEMA_FIELD",
+                    path=violation.path,
+                    message=SPEC_REJECTION_MESSAGE,
+                )
+                for violation in policy_result.violations
+            ],
+            generation_order=[],
+        )
+
     diagnostics = validate_spec_semantics(spec)
     if diagnostics:
         return SpecValidationResponse(
@@ -76,8 +98,15 @@ def validate_specification(spec: DatasetSpec) -> SpecValidationResponse:
 @router.post("/specs/generate", response_model=DatasetSpec)
 def generate_specification_from_prompt(req: GenerateSpecRequest) -> DatasetSpec:
     """Uses the configured local Ollama model to create a validated DatasetSpec."""
+    prompt_policy = screen_schema_prompt(req.prompt)
+    if not prompt_policy.is_safe:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": "SCHEMA_PROMPT_REJECTED", "message": PROMPT_REJECTION_MESSAGE},
+        )
+
     try:
-        return generate_dataset_spec(
+        spec = generate_dataset_spec(
             req.prompt,
             base_url=settings.ollama_base_url,
             model=settings.default_model,
@@ -88,3 +117,11 @@ def generate_specification_from_prompt(req: GenerateSpecRequest) -> DatasetSpec:
             status_code=exc.status_code,
             detail={"code": exc.code, "message": exc.message},
         ) from exc
+
+    output_policy = screen_dataset_spec(spec)
+    if not output_policy.is_safe:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={"code": "SCHEMA_OUTPUT_REJECTED", "message": OUTPUT_REJECTION_MESSAGE},
+        )
+    return spec

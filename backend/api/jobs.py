@@ -2,10 +2,11 @@ import json
 from pathlib import Path
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import ValidationError
 
 from backend.jobs.manager import job_manager
 from backend.jobs.models import JobCreateRequest, JobRecord, JobStatus, JobStatusResponse
+from backend.policies.schema_policy import SPEC_REJECTION_MESSAGE, screen_dataset_spec
 from backend.specs.models import DatasetSpec
 from backend.specs.validator import validate_spec_semantics
 
@@ -16,10 +17,17 @@ def submit_job(req: JobCreateRequest, background_tasks: BackgroundTasks) -> JobS
     """Submits a dataset generation or preview job."""
     try:
         spec = DatasetSpec.model_validate(req.spec)
-    except Exception as e:
+    except ValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid dataset specification: {e}",
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={"code": "SPEC_INVALID", "message": "The dataset specification is invalid."},
+        ) from exc
+
+    policy_result = screen_dataset_spec(spec)
+    if not policy_result.is_safe:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": "SPEC_POLICY_REJECTED", "message": SPEC_REJECTION_MESSAGE},
         )
 
     # Validate semantic contract

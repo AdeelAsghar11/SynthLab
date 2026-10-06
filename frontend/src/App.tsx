@@ -27,6 +27,7 @@ export const App: React.FC = () => {
   // AI Builder State
   const [aiPrompt, setAiPrompt] = useState<string>('');
   const [aiGenerating, setAiGenerating] = useState<boolean>(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const loadHealth = async () => {
     setHealthLoading(true);
@@ -76,17 +77,15 @@ export const App: React.FC = () => {
   const handleAIGenerate = async () => {
     if (!aiPrompt.trim()) return;
     setAiGenerating(true);
-    setSpecError(null);
-    setSpecLoading(true);
+    setAiError(null);
     try {
       const newSpec = await generateSpecification(aiPrompt);
       setActiveSpec(newSpec);
       setSelectedTemplateId('custom_ai');
     } catch (err) {
-      setSpecError(err instanceof Error ? err.message : 'AI Generation Failed');
+      setAiError(err instanceof Error ? err.message : 'Schema generation failed');
     } finally {
       setAiGenerating(false);
-      setSpecLoading(false);
     }
   };
 
@@ -229,21 +228,35 @@ export const App: React.FC = () => {
                 </h3>
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                Describe your use-case (e.g. 10k patient records with blood types) and let the local LLM generate the perfect schema.
+                Describe a fictional operational dataset, such as warehouse inventory with synthetic item IDs. The local model proposes a schema that Python validates before use.
               </p>
               <textarea
                 className="form-input"
-                placeholder="Type your use case here..."
+                placeholder="Example: 500 fictional warehouse inventory records with synthetic item IDs, stock category, quantity, and unit price"
                 rows={3}
                 value={aiPrompt}
-                onChange={e => setAiPrompt(e.target.value)}
+                onChange={e => {
+                  setAiPrompt(e.target.value);
+                  setAiError(null);
+                }}
+                aria-describedby="schema-builder-policy-note"
                 style={{ resize: 'vertical' }}
               />
+              <p id="schema-builder-policy-note" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0.65rem 0 0' }}>
+                Real-source records and personal, contact, financial-account, or credential fields are blocked.
+              </p>
+              {aiError && (
+                <p role="alert" style={{ color: 'var(--accent-rose)', fontSize: '0.82rem', margin: '0.65rem 0 0' }}>
+                  {aiError}
+                </p>
+              )}
               <button
+                type="button"
                 className="btn-primary"
                 style={{ width: '100%', marginTop: '1rem' }}
                 onClick={handleAIGenerate}
                 disabled={aiGenerating || !aiPrompt.trim()}
+                aria-busy={aiGenerating}
               >
                 {aiGenerating ? (
                   <><span className="status-indicator loading" style={{ width: 10, height: 10 }}></span> Generating...</>
@@ -262,7 +275,7 @@ export const App: React.FC = () => {
                 <p style={{ color: 'var(--text-secondary)' }}>Loading specification schema...</p>
               </div>
             ) : specError ? (
-              <div className="card-panel">
+              <div className="card-panel" role="alert">
                 <p style={{ color: 'var(--accent-rose)' }}>Error loading specification: {specError}</p>
               </div>
             ) : activeSpec ? (
